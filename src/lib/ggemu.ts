@@ -167,12 +167,6 @@ type FilterOptionResponse = {
   data: Array<FilterOption>
 }
 
-type GameSearchResponse = {
-  success: true
-  data: Array<PublicGame>
-  pagination: Pagination
-}
-
 type GameDetailResponse = {
   success: true
   data: PublicGame
@@ -298,7 +292,7 @@ async function fetchGames(params: URLSearchParams) {
   const sort = params.get('sort') ?? 'newest'
 
   const games = (await getApprovedCatalog()).filter((game) => {
-    if (game.play_online !== 1 || game.is_gcoin_game === 1) return false
+    if (game.play_online === 0 || game.is_gcoin_game === 1) return false
     if (query && ![game.name, game.description, game.keywords, game.developer].some(
       (value) => value?.toLowerCase().includes(query),
     )) return false
