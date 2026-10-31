@@ -114,6 +114,7 @@ function PlayMyRomPage() {
               : 'fullscreen; gamepad; autoplay'
           }
           className="min-h-[60dvh] flex-1 rounded-lg border border-base-300"
+          playerType="rom"
           locale={lang}
           src={iframeSrc}
           title="Play My ROM"
