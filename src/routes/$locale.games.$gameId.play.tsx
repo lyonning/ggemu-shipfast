@@ -73,6 +73,8 @@ function LocalizedPlayGamePage() {
             : 'autoplay; gamepad; fullscreen'
         }
         className="h-full"
+        gameId={game.url_slug || game._id || gameId}
+        playerType="game"
         locale={lang}
         src={embedSrc}
         title={game.name ?? 'Retro game'}
