@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 import type { Locale } from '#/lib/ggemu'
+import { trackGameEvent } from '#/lib/analytics'
 
 type LoadingState = 'loading' | 'frame-loaded' | 'timeout'
 type PlayerCopy = {
@@ -51,6 +52,8 @@ type Props = {
   locale: Locale
   allow?: string
   className?: string
+  gameId?: string
+  playerType?: 'game' | 'live' | 'rom'
 }
 
 export function EmbeddedGamePlayer({
@@ -59,6 +62,8 @@ export function EmbeddedGamePlayer({
   locale,
   allow = 'autoplay; gamepad; fullscreen',
   className = '',
+  gameId,
+  playerType = 'game',
 }: Props) {
   const shellRef = useRef<HTMLDivElement>(null)
   const [attempt, setAttempt] = useState(0)
@@ -66,14 +71,21 @@ export function EmbeddedGamePlayer({
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [fullscreenError, setFullscreenError] = useState(false)
   const t = copy[locale]
+  const eventParams = { game_id: gameId, locale, player_type: playerType }
 
   useEffect(() => {
     setStatus('loading')
     const timeout = window.setTimeout(() => {
-      setStatus((current) => current === 'loading' ? 'timeout' : current)
+      setStatus((current) => {
+        if (current === 'loading') {
+          trackGameEvent('game_start_error', { ...eventParams, error_reason: 'load_timeout' })
+          return 'timeout'
+        }
+        return current
+      })
     }, PLAYER_LOAD_TIMEOUT_MS)
     return () => window.clearTimeout(timeout)
-  }, [attempt, src])
+  }, [attempt, src, gameId, locale, playerType])
 
   useEffect(() => {
     function handleFullscreenChange() {
@@ -88,17 +100,22 @@ export function EmbeddedGamePlayer({
     try {
       if (document.fullscreenElement) {
         await document.exitFullscreen()
+        trackGameEvent('game_fullscreen_toggle', { ...eventParams, fullscreen: false })
       } else if (shellRef.current?.requestFullscreen) {
         await shellRef.current.requestFullscreen()
+        trackGameEvent('game_fullscreen_toggle', { ...eventParams, fullscreen: true })
       } else {
         setFullscreenError(true)
+        trackGameEvent('game_start_error', { ...eventParams, error_reason: 'fullscreen_unavailable' })
       }
     } catch {
       setFullscreenError(true)
+      trackGameEvent('game_start_error', { ...eventParams, error_reason: 'fullscreen_unavailable' })
     }
   }
 
   function retry() {
+    trackGameEvent('game_play_retry', { ...eventParams, retry_count: attempt + 1 })
     setStatus('loading')
     setAttempt((current) => current + 1)
   }
@@ -113,7 +130,10 @@ export function EmbeddedGamePlayer({
         allow={allow}
         allowFullScreen
         className="absolute inset-0 h-full w-full border-0 bg-black"
-        onLoad={() => setStatus('frame-loaded')}
+        onLoad={() => {
+          setStatus('frame-loaded')
+          trackGameEvent('game_runtime_loaded', eventParams)
+        }}
         src={src}
         title={title}
       />
