@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { getRequestUrl } from '@tanstack/react-start/server'
-import { hasApprovedGames, isApprovedGame, isApprovedGameId } from './game-policy'
+import { getApprovedGameIds, hasApprovedGames, isApprovedGame, isApprovedGameId } from './game-policy'
 
 const API_BASE_URL = 'https://ggemu.com'
 const PAGE_SIZE = 20
@@ -257,15 +257,71 @@ async function fetchJson<T>(path: string, params: URLSearchParams) {
   return response.json() as Promise<T>
 }
 
-async function fetchGames(params: URLSearchParams) {
-  if (!hasApprovedGames()) {
-    const page = normalizePage(params.get('page'))
-    const limit = normalizeLimit(params.get('limit'))
-    return { games: [], pagination: { total: 0, page, limit, pages: 0 } } satisfies GameSearchResult
+const APPROVED_CATALOG_TTL_MS = 60_000
+let approvedCatalogCache: { expiresAt: number; games: Array<PublicGame> } | null = null
+
+async function getApprovedCatalog() {
+  if (!hasApprovedGames()) return []
+  if (approvedCatalogCache && approvedCatalogCache.expiresAt > Date.now()) {
+    return approvedCatalogCache.games
   }
-  const result = await fetchJson<GameSearchResponse>('/api/games/search', params)
-  const games = result.data.filter(isApprovedGame)
-  return { games, pagination: { ...result.pagination, total: games.length, pages: games.length > 0 ? 1 : 0 } } satisfies GameSearchResult
+
+  const ids = getApprovedGameIds()
+  const games: Array<PublicGame> = []
+  // Keep the number of concurrent detail API requests bounded.
+  for (let index = 0; index < ids.length; index += 8) {
+    const batch = await Promise.all(
+      ids.slice(index, index + 8).map(async (id) => {
+        try {
+          const response = await fetchJson<GameDetailResponse>(
+            '/api/game/detail',
+            new URLSearchParams({ id }),
+          )
+          return isApprovedGame(response.data) ? response.data : null
+        } catch {
+          return null
+        }
+      }),
+    )
+    games.push(...batch.filter((game): game is PublicGame => game !== null))
+  }
+  approvedCatalogCache = { expiresAt: Date.now() + APPROVED_CATALOG_TTL_MS, games: dedupeGames(games) }
+  return approvedCatalogCache.games
+}
+
+async function fetchGames(params: URLSearchParams) {
+  const page = normalizePage(params.get('page'))
+  const limit = normalizeLimit(params.get('limit'))
+  const query = (params.get('query') ?? '').trim().toLowerCase()
+  const platform = (params.get('platform') ?? '').trim().toLowerCase()
+  const category = (params.get('category') ?? '').trim().toLowerCase()
+  const sort = params.get('sort') ?? 'newest'
+
+  const games = (await getApprovedCatalog()).filter((game) => {
+    if (game.play_online !== 1 || game.is_gcoin_game === 1) return false
+    if (query && ![game.name, game.description, game.keywords, game.developer].some(
+      (value) => value?.toLowerCase().includes(query),
+    )) return false
+    if (platform && ![game.platform, game.platform_slug, game.platformSlug].some(
+      (value) => value?.toLowerCase() === platform,
+    )) return false
+    if (category && !game.categories?.some((value) => value.toLowerCase() === category)) return false
+    return true
+  })
+  const getNumber = (game: PublicGame, key: 'plays_count' | 'views_count' | 'likes_count') => game[key] ?? 0
+  games.sort((a, b) => {
+    if (sort === 'name_asc') return (a.name ?? '').localeCompare(b.name ?? '')
+    if (sort === 'popular' || sort === 'plays_count') return getNumber(b, 'plays_count') - getNumber(a, 'plays_count')
+    if (sort === 'views' || sort === 'views_count') return getNumber(b, 'views_count') - getNumber(a, 'views_count')
+    if (sort === 'likes' || sort === 'likes_count') return getNumber(b, 'likes_count') - getNumber(a, 'likes_count')
+    return 0
+  })
+  if (sort === 'oldest') games.reverse()
+  const total = games.length
+  return {
+    games: games.slice((page - 1) * limit, page * limit),
+    pagination: { total, page, limit, pages: Math.ceil(total / limit) },
+  } satisfies GameSearchResult
 }
 
 function getGameId(game: PublicGame) {
