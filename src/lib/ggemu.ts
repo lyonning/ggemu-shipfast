@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { getRequestUrl } from '@tanstack/react-start/server'
+import { hasApprovedGames, isApprovedGame, isApprovedGameId } from './game-policy'
 
 const API_BASE_URL = 'https://ggemu.com'
 const PAGE_SIZE = 20
@@ -257,12 +258,14 @@ async function fetchJson<T>(path: string, params: URLSearchParams) {
 }
 
 async function fetchGames(params: URLSearchParams) {
+  if (!hasApprovedGames()) {
+    const page = normalizePage(params.get('page'))
+    const limit = normalizeLimit(params.get('limit'))
+    return { games: [], pagination: { total: 0, page, limit, pages: 0 } } satisfies GameSearchResult
+  }
   const result = await fetchJson<GameSearchResponse>('/api/games/search', params)
-
-  return {
-    games: result.data,
-    pagination: result.pagination,
-  } satisfies GameSearchResult
+  const games = result.data.filter(isApprovedGame)
+  return { games, pagination: { ...result.pagination, total: games.length, pages: games.length > 0 ? 1 : 0 } } satisfies GameSearchResult
 }
 
 function getGameId(game: PublicGame) {
@@ -398,7 +401,8 @@ async function fetchRandomPlayableGame(platform: string | undefined) {
 
   addOptionalParam(baseParams, 'platform', platform)
 
-  const firstPage = await fetchGames(baseParams)
+  if (!hasApprovedGames()) return null
+  const firstPage = await fetchJson<GameSearchResponse>('/api/games/search', baseParams)
   const total = firstPage.pagination.total
 
   if (total <= 0) {
@@ -508,6 +512,7 @@ export const searchLiveRooms = createServerFn({ method: 'GET' })
     limit: normalizeLimit(payload.limit),
   }))
   .handler(async ({ data }) => {
+    if (!hasApprovedGames()) return { rooms: [], pagination: { total: 0, page: data.page, limit: data.limit, pages: 0 } } satisfies LiveRoomSearchResult
     const result = await fetchJson<LiveRoomSearchResponse>(
       '/api/live/rooms',
       new URLSearchParams({
@@ -517,13 +522,14 @@ export const searchLiveRooms = createServerFn({ method: 'GET' })
     )
 
     return {
-      rooms: result.items,
-      pagination: result.pagination,
+      rooms: result.items.filter((room) => isApprovedGame(room.game)),
+      pagination: { ...result.pagination, total: result.items.filter((room) => isApprovedGame(room.game)).length, pages: 1 },
     } satisfies LiveRoomSearchResult
   })
 
 export const getGameFilterOptions = createServerFn({ method: 'GET' })
   .handler(async () => {
+    if (!hasApprovedGames()) return { platforms: [], categories: [] } satisfies GameFilterOptions
     const emptyParams = new URLSearchParams()
     const [platformsResult, genresResult] = await Promise.all([
       fetchJson<FilterOptionResponse>('/api/games/platforms', emptyParams),
@@ -541,6 +547,7 @@ export const getRandomPlayableGame = createServerFn({ method: 'GET' })
     platform: payload.platform?.trim(),
   }))
   .handler(async ({ data }) => {
+    if (!hasApprovedGames()) return null
     const platformsResult = await fetchJson<FilterOptionResponse>(
       '/api/games/platforms',
       new URLSearchParams(),
@@ -558,9 +565,10 @@ export const getGameDetail = createServerFn({ method: 'GET' })
     id: payload.id,
   }))
   .handler(async ({ data }) => {
+    if (!isApprovedGameId(data.id)) throw new Response('Game not found', { status: 404 })
     const params = new URLSearchParams({ id: data.id })
     const result = await fetchJson<GameDetailResponse>('/api/game/detail', params)
-
+    if (!isApprovedGame(result.data)) throw new Response('Game not found', { status: 404 })
     return result.data
   })
 
@@ -570,9 +578,11 @@ export const getGameDetailPageData = createServerFn({ method: 'GET' })
     locale: normalizeLocale(payload.locale),
   }))
   .handler(async ({ data }) => {
+    if (!isApprovedGameId(data.id)) throw new Response('Game not found', { status: 404 })
     const params = new URLSearchParams({ id: data.id })
     const result = await fetchJson<GameDetailResponse>('/api/game/detail', params)
     const game = result.data
+    if (!isApprovedGame(game)) throw new Response('Game not found', { status: 404 })
     const origin = getRequestUrl({ xForwardedHost: true }).origin
 
     return {
@@ -588,6 +598,7 @@ export const getRelatedGamePageData = createServerFn({ method: 'GET' })
     developer: payload.developer,
   }))
   .handler(async ({ data }) => {
+    if (!hasApprovedGames()) return { relatedByCategory: [], relatedByDeveloper: [] } satisfies RelatedGamesData
     return fetchRelatedGames(data) satisfies Promise<RelatedGamesData>
   })
 
