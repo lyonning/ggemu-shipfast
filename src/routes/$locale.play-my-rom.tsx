@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useEffect } from 'react'
 
 import { SiteLayout } from '#/components/site-layout'
+import { EmbeddedGamePlayer } from '#/components/embedded-game-player'
 import { normalizeLocale } from '#/lib/i18n'
 import { getLocalizedSeoLinks, getSeoOrigin } from '#/lib/seo'
 import { useCurrentSiteTheme } from '#/lib/use-site-theme'
@@ -105,15 +106,15 @@ function PlayMyRomPage() {
 
   return (
     <SiteLayout locale={lang}>
-      <section className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl flex-col px-4 py-6 sm:px-6 lg:px-8">
-        <iframe
+      <section className="mx-auto flex min-h-[calc(100dvh-4rem)] max-w-7xl flex-col px-4 py-6 sm:px-6 lg:px-8">
+        <EmbeddedGamePlayer
           allow={
             isolated === 1
               ? 'fullscreen; gamepad; autoplay; cross-origin-isolated'
               : 'fullscreen; gamepad; autoplay'
           }
-          allowFullScreen
-          className="min-h-[720px] flex-1 rounded-lg border border-base-300 bg-base-100"
+          className="min-h-[60dvh] flex-1 rounded-lg border border-base-300"
+          locale={lang}
           src={iframeSrc}
           title="Play My ROM"
         />
