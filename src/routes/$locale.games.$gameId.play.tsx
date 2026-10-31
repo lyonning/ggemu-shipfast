@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from '@tanstack/react-router'
 import { useEffect } from 'react'
 
 import { getGameDetail } from '#/lib/ggemu'
+import { isApprovedGameId } from '#/lib/game-policy'
 import { normalizeLocale } from '#/lib/i18n'
 import { siteConfig } from '#/lib/site-config'
 import { useCurrentSiteTheme } from '#/lib/use-site-theme'
@@ -18,6 +19,7 @@ const noindexHeaders = {
 
 export const Route = createFileRoute('/$locale/games/$gameId/play')({
   beforeLoad: ({ location, params }) => {
+    if (!isApprovedGameId(params.gameId)) throw notFound()
     if (!location.searchStr) {
       return
     }
