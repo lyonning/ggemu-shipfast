@@ -369,6 +369,8 @@ function LiveRoomPlayerModal({
 
         <EmbeddedGamePlayer
           className="min-h-0 flex-1"
+          gameId={gameId}
+          playerType="live"
           locale={lang}
           src={embedSrc}
           title={room.game.name}
