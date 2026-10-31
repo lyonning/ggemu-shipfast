@@ -76,16 +76,21 @@ export function EmbeddedGamePlayer({
   useEffect(() => {
     setStatus('loading')
     const timeout = window.setTimeout(() => {
-      setStatus((current) => {
-        if (current === 'loading') {
-          trackGameEvent('game_start_error', { ...eventParams, error_reason: 'load_timeout' })
-          return 'timeout'
-        }
-        return current
-      })
+      setStatus((current) => current === 'loading' ? 'timeout' : current)
     }, PLAYER_LOAD_TIMEOUT_MS)
     return () => window.clearTimeout(timeout)
   }, [attempt, src, gameId, locale, playerType])
+
+  useEffect(() => {
+    if (status === 'timeout') {
+      trackGameEvent('game_start_error', {
+        game_id: gameId,
+        locale,
+        player_type: playerType,
+        error_reason: 'load_timeout',
+      })
+    }
+  }, [status, gameId, locale, playerType])
 
   useEffect(() => {
     function handleFullscreenChange() {
