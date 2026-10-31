@@ -448,40 +448,12 @@ function toRandomGame(game: PublicGame): RandomGame {
 }
 
 async function fetchRandomPlayableGame(platform: string | undefined) {
-  const randomPageSize = 20
-  const baseParams = new URLSearchParams({
-    limit: '1',
-    page: '1',
-    play_online: '1',
-  })
-
-  addOptionalParam(baseParams, 'platform', platform)
-
-  if (!hasApprovedGames()) return null
-  const firstPage = await fetchJson<GameSearchResponse>('/api/games/search', baseParams)
-  const total = firstPage.pagination.total
-
-  if (total <= 0) {
-    return null
-  }
-
-  for (let attempt = 0; attempt < Math.min(total, 8); attempt += 1) {
-    const params = new URLSearchParams(baseParams)
-    params.set('limit', String(randomPageSize))
-    params.set(
-      'page',
-      String(Math.floor(Math.random() * Math.ceil(total / randomPageSize)) + 1),
-    )
-
-    const result = await fetchGames(params)
-    const playableGames = result.games.filter(isOnlinePlayableGame)
-
-    if (playableGames.length > 0) {
-      return toRandomGame(pickRandomItem(playableGames))
-    }
-  }
-
-  return null
+  const games = (await getApprovedCatalog()).filter(
+    (game) => isOnlinePlayableGame(game)
+      && game.is_gcoin_game !== 1
+      && (!platform || normalizePlatformKey(game.platform) === normalizePlatformKey(platform)),
+  )
+  return games.length > 0 ? toRandomGame(pickRandomItem(games)) : null
 }
 
 async function fetchRelatedGames({
@@ -604,15 +576,10 @@ export const getRandomPlayableGame = createServerFn({ method: 'GET' })
   }))
   .handler(async ({ data }) => {
     if (!hasApprovedGames()) return null
-    const platformsResult = await fetchJson<FilterOptionResponse>(
-      '/api/games/platforms',
-      new URLSearchParams(),
-    )
-    const platform = pickRandomPlatform(
-      data.platform,
-      normalizeFilterOptions(platformsResult.data),
-    )
-
+    const platforms = (await getApprovedCatalog())
+      .map((game) => ({ name: game.platform?.trim() ?? '' }))
+      .filter((game) => game.name)
+    const platform = pickRandomPlatform(data.platform, platforms)
     return fetchRandomPlayableGame(platform)
   })
 
