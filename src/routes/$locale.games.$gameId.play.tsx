@@ -1,6 +1,7 @@
 import { createFileRoute, notFound, redirect } from '@tanstack/react-router'
 import { useEffect } from 'react'
 
+import { EmbeddedGamePlayer } from '#/components/embedded-game-player'
 import { getGameDetail } from '#/lib/ggemu'
 import { isApprovedGameId } from '#/lib/game-policy'
 import { normalizeLocale } from '#/lib/i18n'
@@ -64,15 +65,15 @@ function LocalizedPlayGamePage() {
   }, [isPsp])
 
   return (
-    <main className="min-h-screen bg-black">
-      <iframe
+    <main className="h-screen h-[100dvh] min-h-0 bg-black">
+      <EmbeddedGamePlayer
         allow={
           isPsp
             ? 'autoplay; gamepad; fullscreen; cross-origin-isolated'
-            : 'autoplay; gamepad'
+            : 'autoplay; gamepad; fullscreen'
         }
-        allowFullScreen
-        className="h-screen w-full border-0 bg-black"
+        className="h-full"
+        locale={lang}
         src={embedSrc}
         title={game.name ?? 'Retro game'}
       />
