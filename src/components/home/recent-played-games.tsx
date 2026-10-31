@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 
 import type { Locale, PublicGame } from '#/lib/ggemu'
 import { getI18n } from '#/lib/i18n'
+import { isApprovedGameId } from '#/lib/game-policy'
 
 const RECENT_PLAYED_GAMES_KEY = 'ggemu-recent-played-games'
 const RECENT_PLAYED_GAMES_LIMIT = 4
@@ -105,7 +106,7 @@ function getRecentPlayedGame(game: PublicGame, fallbackId: string) {
   const id = game.url_slug?.trim() || game._id?.trim() || fallbackId.trim()
   const name = game.name?.trim()
 
-  if (!id || !name) {
+  if (!id || !name || !isApprovedGameId(id)) {
     return null
   }
 
@@ -126,7 +127,7 @@ function readRecentPlayedGames() {
     const parsed = value ? JSON.parse(value) : []
 
     return Array.isArray(parsed)
-      ? parsed.filter(isRecentPlayedGame).slice(0, RECENT_PLAYED_GAMES_LIMIT)
+      ? parsed.filter(isRecentPlayedGame).filter((game) => isApprovedGameId(game.id)).slice(0, RECENT_PLAYED_GAMES_LIMIT)
       : []
   } catch {
     return []
