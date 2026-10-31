@@ -3,6 +3,7 @@ import {
   Link,
   Outlet,
   createFileRoute,
+  notFound,
   redirect,
   useRouterState,
 } from '@tanstack/react-router'
@@ -14,6 +15,7 @@ import {
   gameCardPreviewHandlers,
 } from '#/components/game-card-preview'
 import { SiteLayout } from '#/components/site-layout'
+import { isApprovedGameId } from '#/lib/game-policy'
 import { saveRecentPlayedGame } from '#/components/home/recent-played-games'
 import {
   getGameDetailPageData,
@@ -42,6 +44,7 @@ const defaultManifestHref = '/manifest.webmanifest'
 
 export const Route = createFileRoute('/$locale/games/$gameId')({
   beforeLoad: ({ location, params }) => {
+    if (!isApprovedGameId(params.gameId)) throw notFound()
     if (location.pathname.endsWith('/play') || !location.searchStr) {
       return
     }
