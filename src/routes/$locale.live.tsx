@@ -9,6 +9,7 @@ import { useServerFn } from '@tanstack/react-start'
 import { useEffect, useState } from 'react'
 
 import { SiteLayout } from '#/components/site-layout'
+import { EmbeddedGamePlayer } from '#/components/embedded-game-player'
 import {
   searchLiveRooms,
   type Locale,
@@ -366,19 +367,12 @@ function LiveRoomPlayerModal({
           </div>
         </header>
 
-        <div className="relative min-h-0 flex-1 bg-black">
-          <div className="absolute inset-0 grid place-items-center text-white/70">
-            <span className="loading loading-spinner loading-lg" />
-          </div>
-
-          <iframe
-            allow="autoplay; gamepad; fullscreen"
-            allowFullScreen
-            className="relative z-10 h-full w-full border-0 bg-black"
-            src={embedSrc}
-            title={room.game.name}
-          />
-        </div>
+        <EmbeddedGamePlayer
+          className="min-h-0 flex-1"
+          locale={lang}
+          src={embedSrc}
+          title={room.game.name}
+        />
       </section>
     </div>
   )
