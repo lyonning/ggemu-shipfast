@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { fetchGameDeals } from '#/lib/game-deals.server'
 import { DEFAULT_DEAL_REGION } from '#/lib/game-deals-region'
 import type { BlogPost, Locale, PublicGame } from '#/lib/ggemu'
+import { hasApprovedGames, isApprovedGame } from '#/lib/game-policy'
 
 const GGEMU_API_BASE_URL = 'https://ggemu.com'
 const SITEMAP_PAGE_SIZE = 100
@@ -98,6 +99,7 @@ async function getSitemapXml(origin: string) {
 }
 
 async function fetchSitemapGames() {
+  if (!hasApprovedGames()) return []
   const firstPage = await fetchGamesPage(1)
   const pageCount = Math.min(firstPage.pagination.pages, SITEMAP_MAX_PAGES)
   const games = [...firstPage.data]
@@ -107,7 +109,7 @@ async function fetchSitemapGames() {
     games.push(...result.data)
   }
 
-  return dedupeGames(games)
+  return dedupeGames(games.filter(isApprovedGame))
 }
 
 async function fetchGamesPage(page: number) {
