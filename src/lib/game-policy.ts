@@ -3,6 +3,10 @@ import approvedGameIds from '../../config/approved-games.json'
 // Only explicitly approved game IDs or slugs may be published.
 const approvedIds = new Set<string>(approvedGameIds)
 
+export function getApprovedGameIds() {
+  return [...approvedIds]
+}
+
 export function hasApprovedGames() {
   return approvedIds.size > 0
 }
