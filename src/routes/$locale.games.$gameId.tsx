@@ -16,6 +16,7 @@ import {
 } from '#/components/game-card-preview'
 import { SiteLayout } from '#/components/site-layout'
 import { isApprovedGameId } from '#/lib/game-policy'
+import { trackGameEvent } from '#/lib/analytics'
 import { saveRecentPlayedGame } from '#/components/home/recent-played-games'
 import {
   getGameDetailPageData,
@@ -284,6 +285,15 @@ function LocalizedGameDetailPage() {
     startUrl: playPath,
   })
 
+  useEffect(() => {
+    if (pathname.endsWith('/play')) return
+    trackGameEvent('game_detail_view', {
+      game_id: game.url_slug || game._id || gameId,
+      locale: lang,
+      player_type: 'game',
+    })
+  }, [game.url_slug, game._id, gameId, lang, pathname])
+
   if (pathname.endsWith('/play')) {
     return <Outlet />
   }
@@ -358,7 +368,14 @@ function LocalizedGameDetailPage() {
                 <a
                   className="btn btn-primary btn-lg px-8 text-primary-content hover:text-primary-content sm:w-auto"
                   href={playPath}
-                  onClick={() => saveRecentPlayedGame(game, gameId)}
+                  onClick={() => {
+                    trackGameEvent('game_play_click', {
+                      game_id: game.url_slug || game._id || gameId,
+                      locale: lang,
+                      player_type: 'game',
+                    })
+                    saveRecentPlayedGame(game, gameId)
+                  }}
                   rel="noreferrer"
                   target="_blank"
                 >
