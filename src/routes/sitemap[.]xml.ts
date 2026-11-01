@@ -7,7 +7,7 @@ import { getApprovedGameIds, isApprovedGame } from '#/lib/game-policy'
 import { PRODUCTION_SITE_ORIGIN } from '#/lib/seo'
 
 const GGEMU_API_BASE_URL = 'https://ggemu.com'
-const SITEMAP_CACHE_TTL_MS = 1000 * 60 * 60 * 24
+const SITEMAP_CACHE_TTL_MS = 1000 * 60 * 60
 const locales = ['zh-CN', 'en', 'ja'] as const satisfies ReadonlyArray<Locale>
 
 let sitemapCache: {
@@ -40,7 +40,7 @@ export const Route = createFileRoute('/sitemap.xml')({
 
         return new Response(xml, {
           headers: {
-            'Cache-Control': 'public, max-age=3600, s-maxage=86400',
+            'Cache-Control': 'public, max-age=300, s-maxage=3600',
             'Content-Type': 'application/xml; charset=utf-8',
           },
         })
