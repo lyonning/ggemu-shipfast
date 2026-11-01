@@ -3,11 +3,10 @@ import { createFileRoute } from '@tanstack/react-router'
 import { fetchGameDeals } from '#/lib/game-deals.server'
 import { DEFAULT_DEAL_REGION } from '#/lib/game-deals-region'
 import type { BlogPost, Locale, PublicGame } from '#/lib/ggemu'
-import { hasApprovedGames, isApprovedGame } from '#/lib/game-policy'
+import { getApprovedGameIds, isApprovedGame } from '#/lib/game-policy'
+import { PRODUCTION_SITE_ORIGIN } from '#/lib/seo'
 
 const GGEMU_API_BASE_URL = 'https://ggemu.com'
-const SITEMAP_PAGE_SIZE = 100
-const SITEMAP_MAX_PAGES = 50
 const SITEMAP_CACHE_TTL_MS = 1000 * 60 * 60 * 24
 const locales = ['zh-CN', 'en', 'ja'] as const satisfies ReadonlyArray<Locale>
 
@@ -25,14 +24,6 @@ type SitemapEntry = {
   priority?: number
 }
 
-type GameSearchResponse = {
-  success: true
-  data: Array<PublicGame>
-  pagination: {
-    pages: number
-  }
-}
-
 type BlogPostSearchResponse = {
   success: true
   blogPosts: Array<BlogPost>
@@ -44,9 +35,8 @@ type BlogPostSearchResponse = {
 export const Route = createFileRoute('/sitemap.xml')({
   server: {
     handlers: {
-      GET: async ({ request }) => {
-        const origin = new URL(request.url).origin
-        const xml = await getSitemapXml(origin)
+      GET: async () => {
+        const xml = await getSitemapXml(PRODUCTION_SITE_ORIGIN)
 
         return new Response(xml, {
           headers: {
@@ -99,35 +89,26 @@ async function getSitemapXml(origin: string) {
 }
 
 async function fetchSitemapGames() {
-  if (!hasApprovedGames()) return []
-  const firstPage = await fetchGamesPage(1)
-  const pageCount = Math.min(firstPage.pagination.pages, SITEMAP_MAX_PAGES)
-  const games = [...firstPage.data]
-
-  for (let page = 2; page <= pageCount; page += 1) {
-    const result = await fetchGamesPage(page)
-    games.push(...result.data)
+  const ids = getApprovedGameIds()
+  const games: Array<PublicGame> = []
+  for (let index = 0; index < ids.length; index += 8) {
+    const batch = await Promise.all(ids.slice(index, index + 8).map(async (id) => {
+      try {
+        const response = await fetch(
+          `${GGEMU_API_BASE_URL}/api/game/detail?${new URLSearchParams({ id })}`,
+        )
+        if (!response.ok) return null
+        const payload = await response.json() as { data?: PublicGame }
+        return payload.data && isApprovedGame(payload.data) ? payload.data : null
+      } catch {
+        return null
+      }
+    }))
+    games.push(...batch.filter((game): game is PublicGame => game !== null))
   }
-
-  return dedupeGames(games.filter(isApprovedGame))
-}
-
-async function fetchGamesPage(page: number) {
-  const params = new URLSearchParams({
-    is_gcoin_game: '0',
-    limit: String(SITEMAP_PAGE_SIZE),
-    page: String(page),
-    play_online: '1',
-    sort: 'newest',
-  })
-
-  const response = await fetch(`${GGEMU_API_BASE_URL}/api/games/search?${params}`)
-
-  if (!response.ok) {
-    throw new Error(`GGEMU sitemap request failed with ${response.status}`)
-  }
-
-  return response.json() as Promise<GameSearchResponse>
+  return dedupeGames(games.filter((game) =>
+    game.play_online !== 0 && game.is_gcoin_game !== 1,
+  ))
 }
 
 async function fetchSitemapBlogPosts() {
