@@ -44,20 +44,22 @@ function isPublicationApproved(id: string) {
 // A game must be explicitly listed AND have a signed, current rights review.
 // Failure to provide an adequate record always hides the game, even if an ID
 // was manually added to approved-games.json.
-const approvedIds = new Set<string>(
-  approvedGameIds.filter((id) => isPublicationApproved(id)),
-)
+const configuredIds = new Set<string>(approvedGameIds)
+
+function approvedIds() {
+  return [...configuredIds].filter((id) => isPublicationApproved(id))
+}
 
 export function getApprovedGameIds() {
-  return [...approvedIds]
+  return approvedIds()
 }
 
 export function hasApprovedGames() {
-  return approvedIds.size > 0
+  return approvedIds().length > 0
 }
 
 export function isApprovedGameId(id: string | undefined | null) {
-  return Boolean(id && approvedIds.has(id.trim()))
+  return Boolean(id && configuredIds.has(id.trim()) && isPublicationApproved(id.trim()))
 }
 
 export function isApprovedGame(game: { _id?: string; url_slug?: string }) {
