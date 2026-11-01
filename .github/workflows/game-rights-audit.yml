@@ -31,7 +31,7 @@ jobs:
       - run: node scripts/game-rights-audit.mjs validate
 
   inventory-and-review:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
     name: Generate inventory and rights review CSV
     needs: publication-gate
     runs-on: ubuntu-latest
