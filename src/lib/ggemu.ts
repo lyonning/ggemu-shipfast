@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import { getRequestUrl } from '@tanstack/react-start/server'
+import { PRODUCTION_SITE_ORIGIN } from './seo'
 import { getApprovedGameIds, hasApprovedGames, isApprovedGame, isApprovedGameId } from './game-policy'
 
 const API_BASE_URL = 'https://ggemu.com'
@@ -600,7 +600,7 @@ export const getGameDetailPageData = createServerFn({ method: 'GET' })
     const result = await fetchJson<GameDetailResponse>('/api/game/detail', params)
     const game = result.data
     if (!isApprovedGame(game)) throw new Response('Game not found', { status: 404 })
-    const origin = getRequestUrl({ xForwardedHost: true }).origin
+    const origin = PRODUCTION_SITE_ORIGIN
 
     return {
       canonicalUrl: getAbsoluteGameUrl(origin, data.locale, game, data.id),
@@ -651,7 +651,7 @@ export const getBlogPostDetailPageData = createServerFn({ method: 'GET' })
       `/api/blog-posts/${encodeURIComponent(data.id)}`,
       new URLSearchParams(),
     )
-    const origin = getRequestUrl({ xForwardedHost: true }).origin
+    const origin = PRODUCTION_SITE_ORIGIN
 
     return {
       blogPost: result.blogPost,
