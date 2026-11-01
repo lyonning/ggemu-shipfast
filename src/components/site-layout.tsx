@@ -256,14 +256,6 @@ export function SiteFooter({ locale }: { locale: Locale }) {
               </div>
             </div>
             <p className="mt-4 leading-6">{t.footer}</p>
-            <a
-              className="mt-4 badge badge-sm badge-outline gap-2 p-3"
-              href="https://ggemu.com"
-              target="_blank"
-            >
-              <i className="ri-flashlight-line" />
-              Built with GGEMU
-            </a>
           </section>
 
           <nav className="md:min-w-32">
