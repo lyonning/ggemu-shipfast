@@ -1,0 +1,53 @@
+name: Game rights audit and publication gate
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'config/approved-games.json'
+      - 'config/game-rights-reviews.json'
+      - 'scripts/game-rights-audit.mjs'
+      - 'src/lib/game-policy.ts'
+      - '.github/workflows/game-rights-audit.yml'
+  pull_request:
+    paths:
+      - 'config/approved-games.json'
+      - 'config/game-rights-reviews.json'
+      - 'scripts/game-rights-audit.mjs'
+      - 'src/lib/game-policy.ts'
+
+permissions:
+  contents: read
+
+jobs:
+  publication-gate:
+    name: Enforce human rights approvals
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/game-rights-audit.mjs validate
+
+  inventory-and-review:
+    if: github.event_name == 'workflow_dispatch'
+    name: Generate inventory and rights review CSV
+    needs: publication-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/game-rights-audit.mjs inventory
+      - run: node scripts/game-rights-audit.mjs report
+      - uses: actions/upload-artifact@v4
+        with:
+          name: game-rights-review-report
+          path: |
+            reports/game-rights/inventory.json
+            reports/game-rights/review-report.csv
+            reports/game-rights/summary.json
+          retention-days: 30
