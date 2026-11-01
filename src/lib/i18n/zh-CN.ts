@@ -16,7 +16,7 @@ export const zhCnMessages = {
     theme: '主题',
     language: '语言',
     get copyright() {
-      return `版权所有 © 2025 ${siteConfig.SITE_NAME}`
+      return `版权所有 © 2026 ${siteConfig.SITE_NAME}`
     },
     get disclaimer() {
       return `所有游戏 ROM / 程序均由用户提交或收集自互联网，版权归其各自所有者所有。如有任何问题，请发送邮件至 ${siteConfig.SITE_EMAIL}，我们会移除对应内容。`
