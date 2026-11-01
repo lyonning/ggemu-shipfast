@@ -16,7 +16,7 @@ export const jaMessages = {
     theme: 'テーマ',
     language: '言語',
     get copyright() {
-      return `Copyright © 2025 ${siteConfig.SITE_NAME}`
+      return `Copyright © 2026 ${siteConfig.SITE_NAME}`
     },
     get disclaimer() {
       return `すべてのゲーム ROM / プログラムはユーザーから投稿されたもの、またはインターネット上で収集されたものです。著作権はそれぞれの権利所有者に帰属します。問題がある場合は ${siteConfig.SITE_EMAIL} までメールでご連絡ください。該当するコンテンツを削除します。`
