@@ -54,12 +54,12 @@ export const Route = createRootRoute({
           content: 'width=device-width, initial-scale=1',
         },
         {
-          title: `${siteConfig.SITE_SLOGAN} | No Downloads Required`,
+          title: `${siteConfig.SITE_NAME} | ${siteConfig.SITE_SLOGAN}`,
         },
         {
           name: 'description',
           content:
-            'Play classic retro games from GBA, NES, SNES, PS1, N64, Sega Genesis, Arcade and more directly in your browser. No downloads required.',
+            'Discover RetroPlay SEA, explore gaming guides, and play approved browser games when available.',
         },
         {
           name: 'keywords',
@@ -77,7 +77,7 @@ export const Route = createRootRoute({
         {
           property: 'og:description',
           content:
-            'Play GBA, NES, SNES, PS1, N64, Sega Genesis, Arcade and more directly in your browser. No downloads required.',
+            'Explore RetroPlay SEA gaming guides and approved browser games.',
         },
         {
           property: 'og:type',
@@ -114,7 +114,7 @@ export const Route = createRootRoute({
         {
           name: 'twitter:description',
           content:
-            'Classic retro games playable in your browser across GBA, NES, SNES, PS1, N64, Sega Genesis, Arcade and more.',
+            'Explore RetroPlay SEA gaming guides and approved browser games.',
         },
         {
           name: 'twitter:image',
@@ -180,7 +180,6 @@ function MaintenanceErrorComponent() {
         <p className="mt-4 max-w-xl text-base leading-7 text-base-content/70">
           {messages.description}
         </p>
-
       </section>
     </main>
   )
