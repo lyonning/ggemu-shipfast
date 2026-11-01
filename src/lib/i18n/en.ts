@@ -16,7 +16,7 @@ export const enMessages = {
     theme: 'Theme',
     language: 'Language',
     get copyright() {
-      return `Copyright © 2025 ${siteConfig.SITE_NAME}`
+      return `Copyright © 2026 ${siteConfig.SITE_NAME}`
     },
     get disclaimer() {
       return `All the games ROM / programs are submitted by users or collected from the internet, and the copyrights belong to their respective owners. If you have any issues, please email ${siteConfig.SITE_EMAIL}, and we will remove the corresponding content.`
