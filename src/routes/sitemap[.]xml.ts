@@ -2,8 +2,8 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { fetchGameDeals } from '#/lib/game-deals.server'
 import { DEFAULT_DEAL_REGION } from '#/lib/game-deals-region'
-import type { BlogPost, Locale, PublicGame } from '#/lib/ggemu'
-import { getApprovedGameIds, isApprovedGame } from '#/lib/game-policy'
+import type { BlogPost, Locale } from '#/lib/ggemu'
+import { getApprovedGameIds } from '#/lib/game-policy'
 import { PRODUCTION_SITE_ORIGIN } from '#/lib/seo'
 
 const GGEMU_API_BASE_URL = 'https://ggemu.com'
@@ -56,15 +56,12 @@ async function getSitemapXml(origin: string) {
     return sitemapCache.xml
   }
 
-  let games: Array<PublicGame> = []
+  const gameIds = getSitemapGameIds()
   let blogPosts: Array<BlogPost> = []
   const dealsPromise = fetchGameDeals('en', DEFAULT_DEAL_REGION).catch(() => null)
 
   try {
-    ;[games, blogPosts] = await Promise.all([
-      fetchSitemapGames(),
-      fetchSitemapBlogPosts(),
-    ])
+    blogPosts = await fetchSitemapBlogPosts()
   } catch {
     if (sitemapCache) {
       return sitemapCache.xml
@@ -75,7 +72,7 @@ async function getSitemapXml(origin: string) {
 
   const entries = buildSitemapEntries(
     origin,
-    games,
+    gameIds,
     blogPosts,
     dealsResult?.deals.map((deal) => deal.steamAppId) ?? [],
     dealsResult?.updatedAt,
@@ -90,27 +87,13 @@ async function getSitemapXml(origin: string) {
   return xml
 }
 
-async function fetchSitemapGames() {
-  const ids = getApprovedGameIds()
-  const games: Array<PublicGame> = []
-  for (let index = 0; index < ids.length; index += 8) {
-    const batch = await Promise.all(ids.slice(index, index + 8).map(async (id) => {
-      try {
-        const response = await fetch(
-          `${GGEMU_API_BASE_URL}/api/game/detail?${new URLSearchParams({ id })}`,
-        )
-        if (!response.ok) return null
-        const payload = await response.json() as { data?: PublicGame }
-        return payload.data && isApprovedGame(payload.data) ? payload.data : null
-      } catch {
-        return null
-      }
-    }))
-    games.push(...batch.filter((game): game is PublicGame => game !== null))
-  }
-  return dedupeGames(games.filter((game) =>
-    game.play_online !== 0 && game.is_gcoin_game !== 1,
-  ))
+// Game URLs come straight from the approved list: the whitelist IDs are the
+// route IDs, and the catalog behind them was already filtered to playable,
+// non-GCoin games when the list was generated. Fetching every game's detail
+// from the upstream API here would exceed the Worker's subrequest limit and
+// silently truncate the sitemap.
+function getSitemapGameIds() {
+  return [...new Set(getApprovedGameIds())]
 }
 
 async function fetchSitemapBlogPosts() {
@@ -141,10 +124,6 @@ async function fetchBlogPostsPage(page: number) {
   return response.json() as Promise<BlogPostSearchResponse>
 }
 
-function dedupeGames(games: Array<PublicGame>) {
-  return dedupeByRouteId(games, getGameRouteId)
-}
-
 function dedupeBlogPosts(blogPosts: Array<BlogPost>) {
   return dedupeByRouteId(blogPosts, getBlogPostRouteId)
 }
@@ -164,17 +143,13 @@ function dedupeByRouteId<T>(items: Array<T>, getRouteId: (item: T) => string) {
   })
 }
 
-function getGameRouteId(game: PublicGame) {
-  return game.url_slug?.trim() || game._id?.trim() || ''
-}
-
 function getBlogPostRouteId(blogPost: BlogPost) {
   return blogPost.slug?.trim() || blogPost._id?.trim() || ''
 }
 
 function buildSitemapEntries(
   origin: string,
-  games: Array<PublicGame>,
+  gameIds: Array<string>,
   blogPosts: Array<BlogPost>,
   dealSteamAppIds: Array<number>,
   dealsUpdatedAt?: string,
@@ -225,8 +200,8 @@ function buildSitemapEntries(
       priority: 0.7,
     })
 
-    for (const game of games) {
-      const gameId = encodeURIComponent(getGameRouteId(game))
+    for (const id of gameIds) {
+      const gameId = encodeURIComponent(id)
       const path = `/games/${gameId}`
 
       entries.push({
