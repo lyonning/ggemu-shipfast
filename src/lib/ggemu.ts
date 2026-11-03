@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { PRODUCTION_SITE_ORIGIN } from './seo'
-import { getApprovedGameIds, hasApprovedGames, isApprovedGame, isApprovedGameId } from './game-policy'
+import { hasApprovedGames, isApprovedGame, isApprovedGameId } from './game-policy'
 
 const API_BASE_URL = 'https://ggemu.com'
 const PAGE_SIZE = 20
@@ -172,6 +172,12 @@ type GameDetailResponse = {
   data: PublicGame
 }
 
+type GameSearchResponse = {
+  success: true
+  data: Array<PublicGame>
+  pagination: Pagination
+}
+
 type LiveRoomSearchResponse = {
   success: true
   count: number
@@ -252,7 +258,29 @@ async function fetchJson<T>(path: string, params: URLSearchParams) {
 }
 
 const APPROVED_CATALOG_TTL_MS = 60_000
+const APPROVED_CATALOG_PAGE_SIZE = 100
 let approvedCatalogCache: { expiresAt: number; games: Array<PublicGame> } | null = null
+
+async function fetchApprovedCatalogPage(page: number) {
+  const params = new URLSearchParams({
+    is_gcoin_game: NON_GCOIN_GAME,
+    limit: String(APPROVED_CATALOG_PAGE_SIZE),
+    page: String(page),
+    play_online: '1',
+    sort: 'newest',
+  })
+
+  // Retry transient upstream failures so one flaky page cannot drop games.
+  let lastError: unknown
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      return await fetchJson<GameSearchResponse>('/api/games/search', params)
+    } catch (error) {
+      lastError = error
+    }
+  }
+  throw lastError
+}
 
 async function getApprovedCatalog() {
   if (!hasApprovedGames()) return []
@@ -260,27 +288,28 @@ async function getApprovedCatalog() {
     return approvedCatalogCache.games
   }
 
-  const ids = getApprovedGameIds()
-  const games: Array<PublicGame> = []
-  // Keep the number of concurrent detail API requests bounded.
-  for (let index = 0; index < ids.length; index += 8) {
-    const batch = await Promise.all(
-      ids.slice(index, index + 8).map(async (id) => {
-        try {
-          const response = await fetchJson<GameDetailResponse>(
-            '/api/game/detail',
-            new URLSearchParams({ id }),
-          )
-          return isApprovedGame(response.data) ? response.data : null
-        } catch {
-          return null
-        }
-      }),
-    )
-    games.push(...batch.filter((game): game is PublicGame => game !== null))
+  try {
+    // Page through the upstream search API instead of fetching every game's
+    // detail: a full build takes ~18 subrequests, while one detail fetch per
+    // approved game exceeds the Worker's subrequest limit and silently
+    // truncates the catalog to the first few dozen games.
+    const games: Array<PublicGame> = []
+    let page = 1
+    let pageCount = 1
+    while (page <= pageCount) {
+      const result = await fetchApprovedCatalogPage(page)
+      games.push(...result.data.filter((game) => isApprovedGame(game)))
+      pageCount = result.pagination.pages
+      page += 1
+    }
+
+    approvedCatalogCache = { expiresAt: Date.now() + APPROVED_CATALOG_TTL_MS, games: dedupeGames(games) }
+    return approvedCatalogCache.games
+  } catch (error) {
+    // Serve the last good catalog rather than failing the page outright.
+    if (approvedCatalogCache) return approvedCatalogCache.games
+    throw error
   }
-  approvedCatalogCache = { expiresAt: Date.now() + APPROVED_CATALOG_TTL_MS, games: dedupeGames(games) }
-  return approvedCatalogCache.games
 }
 
 async function fetchGames(params: URLSearchParams) {
