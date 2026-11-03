@@ -282,34 +282,49 @@ async function fetchApprovedCatalogPage(page: number) {
   throw lastError
 }
 
+let approvedCatalogBuild: Promise<Array<PublicGame>> | null = null
+
 async function getApprovedCatalog() {
   if (!hasApprovedGames()) return []
   if (approvedCatalogCache && approvedCatalogCache.expiresAt > Date.now()) {
     return approvedCatalogCache.games
   }
 
-  try {
-    // Page through the upstream search API instead of fetching every game's
-    // detail: a full build takes ~18 subrequests, while one detail fetch per
-    // approved game exceeds the Worker's subrequest limit and silently
-    // truncates the catalog to the first few dozen games.
-    const games: Array<PublicGame> = []
-    let page = 1
-    let pageCount = 1
-    while (page <= pageCount) {
-      const result = await fetchApprovedCatalogPage(page)
-      games.push(...result.data.filter((game) => isApprovedGame(game)))
-      pageCount = result.pagination.pages
-      page += 1
-    }
+  // Share one in-flight build between concurrent callers (e.g. a detail page
+  // loading several game lists at once), so their subrequests never stack up
+  // into parallel catalog builds.
+  if (!approvedCatalogBuild) {
+    approvedCatalogBuild = buildApprovedCatalog().finally(() => {
+      approvedCatalogBuild = null
+    })
+  }
 
-    approvedCatalogCache = { expiresAt: Date.now() + APPROVED_CATALOG_TTL_MS, games: dedupeGames(games) }
-    return approvedCatalogCache.games
+  try {
+    return await approvedCatalogBuild
   } catch (error) {
     // Serve the last good catalog rather than failing the page outright.
     if (approvedCatalogCache) return approvedCatalogCache.games
     throw error
   }
+}
+
+async function buildApprovedCatalog() {
+  // Page through the upstream search API instead of fetching every game's
+  // detail: a full build takes ~18 subrequests, while one detail fetch per
+  // approved game exceeds the Worker's subrequest limit and silently
+  // truncates the catalog to the first few dozen games.
+  const games: Array<PublicGame> = []
+  let page = 1
+  let pageCount = 1
+  while (page <= pageCount) {
+    const result = await fetchApprovedCatalogPage(page)
+    games.push(...result.data.filter((game) => isApprovedGame(game)))
+    pageCount = result.pagination.pages
+    page += 1
+  }
+
+  approvedCatalogCache = { expiresAt: Date.now() + APPROVED_CATALOG_TTL_MS, games: dedupeGames(games) }
+  return approvedCatalogCache.games
 }
 
 async function fetchGames(params: URLSearchParams) {
