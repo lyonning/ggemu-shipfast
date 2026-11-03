@@ -28094,5 +28094,21 @@
     "territory_confirmed": true,
     "assets_confirmed": true,
     "notes": "Auto-added by catalog sync under the site owner blanket approval (2026-11-02) and standing auto-sync instruction (2026-11-03); not individually evidence-reviewed per game."
+  },
+  {
+    "game_id": "rexue-jietou-java-2007",
+    "status": "approved",
+    "rights_holder": "INFOSPACE",
+    "license_basis": "Site owner blanket approval for the GGEMU embed catalog (RetroPlay SEA owner decision, 2026-11-02)",
+    "evidence_url": "https://ggemu.com/en/game/rexue-jietou-java-2007",
+    "approved_by": "Hosu",
+    "approved_at": "2026-11-04",
+    "expires_at": "",
+    "commercial_use": true,
+    "third_party_embed": true,
+    "public_play": true,
+    "territory_confirmed": true,
+    "assets_confirmed": true,
+    "notes": "Auto-added by catalog sync under the site owner blanket approval (2026-11-02) and standing auto-sync instruction (2026-11-03); not individually evidence-reviewed per game."
   }
 ]
