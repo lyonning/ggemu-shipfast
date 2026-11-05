@@ -728,16 +728,16 @@ export const getRandomPlayableGame = createServerFn({ method: 'GET' })
   })
 
 async function fetchGameDetailOrSnapshot(id: string) {
-  try {
-    const params = new URLSearchParams({ id })
-    const result = await fetchJson<GameDetailResponse>('/api/game/detail', params)
-    return result.data
-  } catch (error) {
-    // Upstream unreachable: serve the local snapshot copy of this game.
-    const snapshot = getSnapshotGame(id)
-    if (snapshot) return snapshot
-    throw error
-  }
+  // Snapshot first: the local catalog snapshot (refreshed daily by the
+  // catalog sync) covers every approved game, and serving from it keeps
+  // detail/play pages fast — the live upstream detail call can take
+  // several seconds or hang, which timed out play pages in production.
+  // The live call remains for games missing from the snapshot.
+  const snapshot = getSnapshotGame(id)
+  if (snapshot) return snapshot
+  const params = new URLSearchParams({ id })
+  const result = await fetchJson<GameDetailResponse>('/api/game/detail', params)
+  return result.data
 }
 
 export const getGameDetail = createServerFn({ method: 'GET' })
