@@ -2,6 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { PRODUCTION_SITE_ORIGIN } from './seo'
 import { hasApprovedGames, isApprovedGame, isApprovedGameId } from './game-policy'
 import catalogSnapshot from '../../config/catalog-snapshot.json'
+import localRoms from '../../config/local-roms.json'
 
 const API_BASE_URL = 'https://ggemu.com'
 
@@ -43,6 +44,42 @@ function getSnapshotGame(id: string): PublicGame | null {
   const snapshot = snapshotByApprovedId.get(id)
   return snapshot ? withLocalCover(stripSnapshotFields(snapshot)) : null
 }
+
+// Phase 2 local ROMs (config/local-roms.json, produced by the migration
+// scripts): games whose ROM file is mirrored in our own R2 bucket and can
+// be played with the self-hosted EmulatorJS player instead of the GGEMU
+// iframe. The registry is keyed by approved game id.
+const LOCAL_ROM_BASE = 'https://roms.1231533.com'
+const localRomByApprovedId = localRoms as Record<string, { id: string; ext: string }>
+
+// EmulatorJS core per platform (names follow EmulatorJS 4.2).
+const CORE_BY_PLATFORM: Record<string, string> = {
+  'Famicom': 'nes',
+  'Super Famicom': 'snes',
+  'Game Boy': 'gb',
+  'Game Boy Color': 'gb',
+  'Game Boy Advance': 'gba',
+  'Genesis': 'segaMD',
+  'Master System': 'segaMS',
+  'Game Gear': 'segaGG',
+  'Sega CD': 'segaCD',
+  'Nintendo 64': 'n64',
+  'Nintendo DS': 'nds',
+  'Arcade': 'arcade',
+  'PC Engine': 'pce',
+}
+
+function withLocalRom(game: PublicGame, approvedId: string): PublicGame {
+  const entry = localRomByApprovedId[approvedId]
+    ?? (game.url_slug ? localRomByApprovedId[game.url_slug] : undefined)
+    ?? (game._id ? localRomByApprovedId[game._id] : undefined)
+  const core = game.platform ? CORE_BY_PLATFORM[game.platform] : undefined
+  if (!entry || !core) return game
+  return {
+    ...game,
+    local_rom: { url: `${LOCAL_ROM_BASE}/${entry.id}/game.${entry.ext}`, core },
+  }
+}
 const PAGE_SIZE = 20
 const MAX_PAGE_SIZE = 100
 const NON_GCOIN_GAME = '0'
@@ -80,6 +117,7 @@ export type PublicGame = {
   is_gcoin_game?: number
   game_cover?: string
   game_video?: string
+  local_rom?: { url: string; core: string }
   likes_count?: number
   comments_count?: number
   views_count?: number
@@ -710,7 +748,7 @@ export const getGameDetail = createServerFn({ method: 'GET' })
     if (!isApprovedGameId(data.id)) throw new Response('Game not found', { status: 404 })
     const game = await fetchGameDetailOrSnapshot(data.id)
     if (!isApprovedGame(game)) throw new Response('Game not found', { status: 404 })
-    return withLocalCover(game)
+    return withLocalRom(withLocalCover(game), data.id)
   })
 
 export const getGameDetailPageData = createServerFn({ method: 'GET' })
@@ -722,7 +760,7 @@ export const getGameDetailPageData = createServerFn({ method: 'GET' })
     if (!isApprovedGameId(data.id)) throw new Response('Game not found', { status: 404 })
     const fetched = await fetchGameDetailOrSnapshot(data.id)
     if (!isApprovedGame(fetched)) throw new Response('Game not found', { status: 404 })
-    const game = withLocalCover(fetched)
+    const game = withLocalRom(withLocalCover(fetched), data.id)
     const origin = PRODUCTION_SITE_ORIGIN
 
     return {

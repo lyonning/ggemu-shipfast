@@ -1,7 +1,8 @@
 import { createFileRoute, notFound, redirect } from '@tanstack/react-router'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import { EmbeddedGamePlayer } from '#/components/embedded-game-player'
+import { LocalGamePlayer } from '#/components/local-game-player'
 import { getGameDetail } from '#/lib/ggemu'
 import { isApprovedGameId } from '#/lib/game-policy'
 import { normalizeLocale } from '#/lib/i18n'
@@ -48,6 +49,10 @@ function LocalizedPlayGamePage() {
   const isPsp = isPspGame(game)
   const theme = useCurrentSiteTheme()
   const embedSrc = `https://ggemu.com/${lang}/game/${embedId}?${buildEmbedSearch(refcode, isPsp, theme)}`
+  // Games with a locally mirrored ROM (Phase 2) play in our own
+  // EmulatorJS player by default; the GGEMU iframe stays one tap away.
+  const [playerMode, setPlayerMode] = useState<'local' | 'embed'>('local')
+  const localRom = game.local_rom
 
   useEffect(() => {
     return () => {
@@ -66,19 +71,31 @@ function LocalizedPlayGamePage() {
 
   return (
     <main className="h-screen h-[100dvh] min-h-0 bg-black">
-      <EmbeddedGamePlayer
-        allow={
-          isPsp
-            ? 'autoplay; gamepad; fullscreen; cross-origin-isolated'
-            : 'autoplay; gamepad; fullscreen'
-        }
-        className="h-full"
-        gameId={game.url_slug || game._id || gameId}
-        playerType="game"
-        locale={lang}
-        src={embedSrc}
-        title={game.name ?? 'Retro game'}
-      />
+      {localRom && playerMode === 'local' ? (
+        <LocalGamePlayer
+          className="h-full"
+          core={localRom.core}
+          gameId={game.url_slug || game._id || gameId}
+          gameName={game.name ?? 'Retro game'}
+          locale={lang}
+          onSwitchToEmbed={() => setPlayerMode('embed')}
+          romUrl={localRom.url}
+        />
+      ) : (
+        <EmbeddedGamePlayer
+          allow={
+            isPsp
+              ? 'autoplay; gamepad; fullscreen; cross-origin-isolated'
+              : 'autoplay; gamepad; fullscreen'
+          }
+          className="h-full"
+          gameId={game.url_slug || game._id || gameId}
+          playerType="game"
+          locale={lang}
+          src={embedSrc}
+          title={game.name ?? 'Retro game'}
+        />
+      )}
     </main>
   )
 }
