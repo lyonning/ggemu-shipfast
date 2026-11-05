@@ -70,8 +70,11 @@ async function mapPool(items, worker) {
 const approved = JSON.parse(await readFile(APPROVED, 'utf8'))
 const approvedSet = new Set(approved)
 
-// Page the search API to learn each approved game's upstream _id.
+// Page the search API to learn each approved game's upstream _id and its
+// position in the upstream newest-first order (the snapshot keeps that
+// order so the site's default "newest" listing matches the live catalog).
 const upstreamIdByApprovedId = new Map()
+const upstreamOrderByApprovedId = new Map()
 for (let page = 1; page <= 30; page++) {
   const params = new URLSearchParams({
     play_online: '1', is_gcoin_game: '0', sort: 'newest',
@@ -84,6 +87,9 @@ for (let page = 1; page <= 30; page++) {
     const approvedId = clean(item.url_slug) || clean(item._id)
     if (approvedSet.has(approvedId)) {
       upstreamIdByApprovedId.set(approvedId, clean(item._id))
+      if (!upstreamOrderByApprovedId.has(approvedId)) {
+        upstreamOrderByApprovedId.set(approvedId, upstreamOrderByApprovedId.size)
+      }
     }
   }
 }
@@ -105,6 +111,11 @@ const details = await mapPool(approved, async (approvedId) => {
 })
 
 const games = details.filter(Boolean)
+games.sort((a, b) => {
+  const orderA = upstreamOrderByApprovedId.get(a._approved_id) ?? Number.MAX_SAFE_INTEGER
+  const orderB = upstreamOrderByApprovedId.get(b._approved_id) ?? Number.MAX_SAFE_INTEGER
+  return orderA - orderB
+})
 const missing = approved.filter((id, i) => !details[i])
 
 // Mirror covers for games whose detail carried a cover URL.
