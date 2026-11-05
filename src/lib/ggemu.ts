@@ -1,8 +1,48 @@
 import { createServerFn } from '@tanstack/react-start'
 import { PRODUCTION_SITE_ORIGIN } from './seo'
 import { hasApprovedGames, isApprovedGame, isApprovedGameId } from './game-policy'
+import catalogSnapshot from '../../config/catalog-snapshot.json'
 
 const API_BASE_URL = 'https://ggemu.com'
+
+// Local catalog snapshot (config/catalog-snapshot.json, refreshed daily by
+// scripts/snapshot-catalog.mjs). It is the fallback when the GGEMU API is
+// unreachable, and it records which covers are mirrored on our own assets
+// host so pages can serve those instead of GGEMU's storage.
+type SnapshotGame = PublicGame & { _approved_id?: string; local_cover?: boolean }
+
+const LOCAL_COVER_BASE = 'https://assets.1231533.com/covers'
+const snapshotGames = catalogSnapshot as Array<SnapshotGame>
+const snapshotByApprovedId = new Map<string, SnapshotGame>()
+for (const game of snapshotGames) {
+  if (game._approved_id) snapshotByApprovedId.set(game._approved_id, game)
+  if (game.url_slug) snapshotByApprovedId.set(game.url_slug, game)
+  if (game._id) snapshotByApprovedId.set(game._id, game)
+}
+
+function stripSnapshotFields(game: SnapshotGame): PublicGame {
+  const { _approved_id, local_cover, ...rest } = game
+  return rest
+}
+
+function withLocalCover<T extends PublicGame>(game: T): T {
+  if (!game._id) return game
+  const snapshot = snapshotByApprovedId.get(game._id)
+    ?? (game.url_slug ? snapshotByApprovedId.get(game.url_slug) : undefined)
+  if (snapshot?.local_cover) {
+    return { ...game, game_cover: `${LOCAL_COVER_BASE}/${game._id}.jpg` }
+  }
+  return game
+}
+
+function getSnapshotCatalog(): Array<PublicGame> {
+  return dedupeGames(snapshotGames.map((game) => withLocalCover(stripSnapshotFields(game))))
+}
+
+function getSnapshotGame(id: string): PublicGame | null {
+  const snapshot = snapshotByApprovedId.get(id)
+  return snapshot ? withLocalCover(stripSnapshotFields(snapshot)) : null
+}
 const PAGE_SIZE = 20
 const MAX_PAGE_SIZE = 100
 const NON_GCOIN_GAME = '0'
@@ -304,6 +344,9 @@ async function getApprovedCatalog() {
   } catch (error) {
     // Serve the last good catalog rather than failing the page outright.
     if (approvedCatalogCache) return approvedCatalogCache.games
+    // No live build and no cache (e.g. upstream down after a restart):
+    // fall back to the local snapshot so the catalog keeps working.
+    if (snapshotGames.length > 0) return getSnapshotCatalog()
     throw error
   }
 }
@@ -323,7 +366,10 @@ async function buildApprovedCatalog() {
     page += 1
   }
 
-  approvedCatalogCache = { expiresAt: Date.now() + APPROVED_CATALOG_TTL_MS, games: dedupeGames(games) }
+  approvedCatalogCache = {
+    expiresAt: Date.now() + APPROVED_CATALOG_TTL_MS,
+    games: dedupeGames(games).map((game) => withLocalCover(game)),
+  }
   return approvedCatalogCache.games
 }
 
@@ -596,16 +642,38 @@ export const searchLiveRooms = createServerFn({ method: 'GET' })
 export const getGameFilterOptions = createServerFn({ method: 'GET' })
   .handler(async () => {
     if (!hasApprovedGames()) return { platforms: [], categories: [] } satisfies GameFilterOptions
-    const emptyParams = new URLSearchParams()
-    const [platformsResult, genresResult] = await Promise.all([
-      fetchJson<FilterOptionResponse>('/api/games/platforms', emptyParams),
-      fetchJson<FilterOptionResponse>('/api/games/genres', emptyParams),
-    ])
+    try {
+      const emptyParams = new URLSearchParams()
+      const [platformsResult, genresResult] = await Promise.all([
+        fetchJson<FilterOptionResponse>('/api/games/platforms', emptyParams),
+        fetchJson<FilterOptionResponse>('/api/games/genres', emptyParams),
+      ])
 
-    return {
-      platforms: normalizeFilterOptions(platformsResult.data),
-      categories: normalizeFilterOptions(genresResult.data),
-    } satisfies GameFilterOptions
+      return {
+        platforms: normalizeFilterOptions(platformsResult.data),
+        categories: normalizeFilterOptions(genresResult.data),
+      } satisfies GameFilterOptions
+    } catch {
+      // Upstream unreachable: derive the filter lists from the local snapshot.
+      const platformCounts = new Map<string, number>()
+      const categoryCounts = new Map<string, number>()
+      for (const game of snapshotGames) {
+        if (game.platform) {
+          platformCounts.set(game.platform, (platformCounts.get(game.platform) ?? 0) + 1)
+        }
+        for (const category of game.categories ?? []) {
+          categoryCounts.set(category, (categoryCounts.get(category) ?? 0) + 1)
+        }
+      }
+      const toOptions = (counts: Map<string, number>) =>
+        [...counts.entries()]
+          .map(([name, count]) => ({ name, count }))
+          .sort((a, b) => b.count - a.count)
+      return {
+        platforms: toOptions(platformCounts),
+        categories: toOptions(categoryCounts),
+      } satisfies GameFilterOptions
+    }
   })
 
 export const getRandomPlayableGame = createServerFn({ method: 'GET' })
@@ -621,16 +689,28 @@ export const getRandomPlayableGame = createServerFn({ method: 'GET' })
     return fetchRandomPlayableGame(platform)
   })
 
+async function fetchGameDetailOrSnapshot(id: string) {
+  try {
+    const params = new URLSearchParams({ id })
+    const result = await fetchJson<GameDetailResponse>('/api/game/detail', params)
+    return result.data
+  } catch (error) {
+    // Upstream unreachable: serve the local snapshot copy of this game.
+    const snapshot = getSnapshotGame(id)
+    if (snapshot) return snapshot
+    throw error
+  }
+}
+
 export const getGameDetail = createServerFn({ method: 'GET' })
   .validator((payload: GameDetailPayload) => ({
     id: payload.id,
   }))
   .handler(async ({ data }) => {
     if (!isApprovedGameId(data.id)) throw new Response('Game not found', { status: 404 })
-    const params = new URLSearchParams({ id: data.id })
-    const result = await fetchJson<GameDetailResponse>('/api/game/detail', params)
-    if (!isApprovedGame(result.data)) throw new Response('Game not found', { status: 404 })
-    return result.data
+    const game = await fetchGameDetailOrSnapshot(data.id)
+    if (!isApprovedGame(game)) throw new Response('Game not found', { status: 404 })
+    return withLocalCover(game)
   })
 
 export const getGameDetailPageData = createServerFn({ method: 'GET' })
@@ -640,10 +720,9 @@ export const getGameDetailPageData = createServerFn({ method: 'GET' })
   }))
   .handler(async ({ data }) => {
     if (!isApprovedGameId(data.id)) throw new Response('Game not found', { status: 404 })
-    const params = new URLSearchParams({ id: data.id })
-    const result = await fetchJson<GameDetailResponse>('/api/game/detail', params)
-    const game = result.data
-    if (!isApprovedGame(game)) throw new Response('Game not found', { status: 404 })
+    const fetched = await fetchGameDetailOrSnapshot(data.id)
+    if (!isApprovedGame(fetched)) throw new Response('Game not found', { status: 404 })
+    const game = withLocalCover(fetched)
     const origin = PRODUCTION_SITE_ORIGIN
 
     return {
