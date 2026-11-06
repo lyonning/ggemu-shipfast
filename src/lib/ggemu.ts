@@ -50,7 +50,7 @@ function getSnapshotGame(id: string): PublicGame | null {
 // be played with the self-hosted EmulatorJS player instead of the GGEMU
 // iframe. The registry is keyed by approved game id.
 const LOCAL_ROM_BASE = 'https://roms.1231533.com'
-const localRomByApprovedId = localRoms as Record<string, { id: string; ext: string }>
+const localRomByApprovedId = localRoms as Record<string, { id: string; ext: string; file?: string }>
 
 // EmulatorJS core per platform (names follow EmulatorJS 4.2).
 const CORE_BY_PLATFORM: Record<string, string> = {
@@ -75,9 +75,13 @@ function withLocalRom(game: PublicGame, approvedId: string): PublicGame {
     ?? (game._id ? localRomByApprovedId[game._id] : undefined)
   const core = game.platform ? CORE_BY_PLATFORM[game.platform] : undefined
   if (!entry || !core) return game
+  // Arcade entries carry an explicit file name: FBNeo identifies the
+  // romset by the ZIP's file name (e.g. kof97.zip), so those ROMs are
+  // served under their romset name instead of game.zip.
+  const fileName = entry.file ?? `game.${entry.ext}`
   return {
     ...game,
-    local_rom: { url: `${LOCAL_ROM_BASE}/${entry.id}/game.${entry.ext}`, core },
+    local_rom: { url: `${LOCAL_ROM_BASE}/${entry.id}/${fileName}`, core },
   }
 }
 const PAGE_SIZE = 20
