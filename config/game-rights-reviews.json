@@ -28238,5 +28238,53 @@
     "territory_confirmed": true,
     "assets_confirmed": true,
     "notes": "Auto-added by catalog sync under the site owner blanket approval (2026-11-02) and standing auto-sync instruction (2026-11-03); not individually evidence-reviewed per game."
+  },
+  {
+    "game_id": "pokemon-quetzal-cn-gba-2023",
+    "status": "approved",
+    "rights_holder": "POKÉROGUE",
+    "license_basis": "Site owner blanket approval for the GGEMU embed catalog (RetroPlay SEA owner decision, 2026-11-02)",
+    "evidence_url": "https://ggemu.com/en/game/pokemon-quetzal-cn-gba-2023",
+    "approved_by": "Hosu",
+    "approved_at": "2026-11-07",
+    "expires_at": "",
+    "commercial_use": true,
+    "third_party_embed": true,
+    "public_play": true,
+    "territory_confirmed": true,
+    "assets_confirmed": true,
+    "notes": "Auto-added by catalog sync under the site owner blanket approval (2026-11-02) and standing auto-sync instruction (2026-11-03); not individually evidence-reviewed per game."
+  },
+  {
+    "game_id": "yoshi-no-banyu-inryoku-gba-2004",
+    "status": "approved",
+    "rights_holder": "ARTOON",
+    "license_basis": "Site owner blanket approval for the GGEMU embed catalog (RetroPlay SEA owner decision, 2026-11-02)",
+    "evidence_url": "https://ggemu.com/en/game/yoshi-no-banyu-inryoku-gba-2004",
+    "approved_by": "Hosu",
+    "approved_at": "2026-11-07",
+    "expires_at": "",
+    "commercial_use": true,
+    "third_party_embed": true,
+    "public_play": true,
+    "territory_confirmed": true,
+    "assets_confirmed": true,
+    "notes": "Auto-added by catalog sync under the site owner blanket approval (2026-11-02) and standing auto-sync instruction (2026-11-03); not individually evidence-reviewed per game."
+  },
+  {
+    "game_id": "warioware-twisted-gba-2003",
+    "status": "approved",
+    "rights_holder": "NINTENDO R&D1",
+    "license_basis": "Site owner blanket approval for the GGEMU embed catalog (RetroPlay SEA owner decision, 2026-11-02)",
+    "evidence_url": "https://ggemu.com/en/game/warioware-twisted-gba-2003",
+    "approved_by": "Hosu",
+    "approved_at": "2026-11-07",
+    "expires_at": "",
+    "commercial_use": true,
+    "third_party_embed": true,
+    "public_play": true,
+    "territory_confirmed": true,
+    "assets_confirmed": true,
+    "notes": "Auto-added by catalog sync under the site owner blanket approval (2026-11-02) and standing auto-sync instruction (2026-11-03); not individually evidence-reviewed per game."
   }
 ]
