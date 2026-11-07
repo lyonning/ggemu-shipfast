@@ -9,6 +9,8 @@ declare global {
     EJS_core?: string
     EJS_gameUrl?: string
     EJS_gameName?: string
+    EJS_ready?: () => void
+    EJS_onGameStart?: () => void
     // EmulatorJS 4.2.x's loader reads the all-lowercase EJS_pathtodata;
     // set both spellings or the runtime files resolve to wrong paths.
     EJS_pathtodata?: string
@@ -26,6 +28,7 @@ const DATA_PATH = '/emu-data/'
 
 type PlayerCopy = {
   loading: string
+  tapHint: string
   errorTitle: string
   errorBody: string
   retry: string
@@ -37,6 +40,7 @@ type PlayerCopy = {
 const copy: Record<Locale, PlayerCopy> = {
   'zh-CN': {
     loading: '正在加载本地模拟器…',
+    tapHint: '加载完成后，点一下画面开始游戏',
     errorTitle: '本地模拟器加载失败',
     errorBody: '模拟器文件没能加载出来，多半是网络中断。可以重试，或切换到 GGEMU 播放器。',
     retry: '重新加载',
@@ -46,6 +50,7 @@ const copy: Record<Locale, PlayerCopy> = {
   },
   en: {
     loading: 'Loading the local emulator…',
+    tapHint: 'When loading finishes, tap the screen to start',
     errorTitle: 'Local emulator failed to load',
     errorBody: 'The emulator files could not be loaded, most likely a network issue. Retry, or switch to the GGEMU player.',
     retry: 'Reload player',
@@ -55,6 +60,7 @@ const copy: Record<Locale, PlayerCopy> = {
   },
   ja: {
     loading: 'ローカルエミュレータを読み込み中…',
+    tapHint: '読み込みが終わったら、画面をタップして開始',
     errorTitle: 'ローカルエミュレータの読み込みに失敗しました',
     errorBody: 'エミュレータファイルを読み込めませんでした。ネットワークの問題の可能性があります。再試行するか、GGEMU プレイヤーに切り替えてください。',
     retry: '再読み込み',
@@ -86,12 +92,14 @@ export function LocalGamePlayer({
   const shellRef = useRef<HTMLDivElement>(null)
   const [attempt, setAttempt] = useState(0)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
+  const [showTapHint, setShowTapHint] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const t = copy[locale]
   const eventParams = { game_id: gameId, locale, player_type: 'game' as const, player: 'local' }
 
   useEffect(() => {
     setStatus('loading')
+    setShowTapHint(false)
     window.EJS_player = '#local-game'
     window.EJS_core = core
     window.EJS_gameUrl = romUrl
@@ -101,6 +109,14 @@ export function LocalGamePlayer({
     window.EJS_startOnLoaded = true
     window.EJS_language = locale === 'zh-CN' ? 'zh-CN' : 'en-US'
     window.EJS_backgroundColor = '#000000'
+    // EmulatorJS fires "ready" when its start screen is up and "start"
+    // when emulation actually begins. Encrypted arcade ROMs can sit on
+    // a black screen between the two (decryption + core init), and the
+    // start screen itself waits for a tap when autoplay is blocked —
+    // show our own hint for that gap so the black screen explains
+    // itself. The hint never intercepts the tap (pointer-events-none).
+    window.EJS_ready = () => setShowTapHint(true)
+    window.EJS_onGameStart = () => setShowTapHint(false)
 
     const script = document.createElement('script')
     script.src = `${DATA_PATH}loader.js`
@@ -124,6 +140,8 @@ export function LocalGamePlayer({
       script.remove()
       delete window.EJS_gameUrl
       delete window.EJS_core
+      delete window.EJS_ready
+      delete window.EJS_onGameStart
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [romUrl, core, gameName, attempt])
@@ -158,9 +176,15 @@ export function LocalGamePlayer({
   return (
     <div
       className={`relative isolate min-h-0 w-full overflow-hidden bg-black text-white ${className}`}
+      onPointerDown={() => setShowTapHint(false)}
       ref={shellRef}
     >
       <div id="local-game" className="absolute inset-0 h-full w-full" />
+      {showTapHint && status !== 'error' ? (
+        <p className="pointer-events-none absolute bottom-16 left-1/2 z-30 -translate-x-1/2 whitespace-nowrap rounded bg-black/70 px-3 py-1.5 text-xs text-white/85">
+          {t.tapHint}
+        </p>
+      ) : null}
       {status === 'loading' ? (
         <div
           aria-live="polite"
