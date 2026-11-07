@@ -90,6 +90,10 @@ export function HomeHeroCarousel({
 }) {
   const t = copy[lang]
   const [index, setIndex] = useState(0)
+  // Bumped on every manual swipe/dot tap so the auto-rotate timer
+  // restarts instead of firing right after a manual switch.
+  const [cycleKey, setCycleKey] = useState(0)
+  const [touchStartX, setTouchStartX] = useState<number | null>(null)
 
   useEffect(() => {
     if (games.length < 2) return
@@ -98,16 +102,39 @@ export function HomeHeroCarousel({
       5000,
     )
     return () => window.clearInterval(id)
-  }, [games.length])
+  }, [games.length, cycleKey])
 
   if (games.length === 0) return null
   const game = games[Math.min(index, games.length - 1)]
   const gameId = game.url_slug || game._id || ''
 
+  function goTo(nextIndex: number) {
+    setIndex(((nextIndex % games.length) + games.length) % games.length)
+    setCycleKey((current) => current + 1)
+  }
+
+  function handleTouchStart(event: React.TouchEvent) {
+    setTouchStartX(event.touches[0]?.clientX ?? null)
+  }
+
+  function handleTouchEnd(event: React.TouchEvent) {
+    if (touchStartX === null) return
+    const endX = event.changedTouches[0]?.clientX ?? touchStartX
+    const deltaX = endX - touchStartX
+    setTouchStartX(null)
+    // Ignore vertical-scroll gestures and tiny movements.
+    if (Math.abs(deltaX) < 40) return
+    goTo(index + (deltaX < 0 ? 1 : -1))
+  }
+
   return (
     <section className="bg-base-200">
       <div className="relative mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-box bg-black shadow">
+        <div
+          className="relative touch-pan-y overflow-hidden rounded-box bg-black shadow"
+          onTouchEnd={handleTouchEnd}
+          onTouchStart={handleTouchStart}
+        >
           {game.game_cover ? (
             <img
               alt={game.name ?? 'Game cover'}
@@ -149,7 +176,7 @@ export function HomeHeroCarousel({
                     itemIndex === index ? 'w-6 bg-white' : 'w-2 bg-white/50'
                   }`}
                   key={item._id ?? item.url_slug ?? itemIndex}
-                  onClick={() => setIndex(itemIndex)}
+                  onClick={() => goTo(itemIndex)}
                   type="button"
                 />
               ))}
