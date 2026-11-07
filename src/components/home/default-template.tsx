@@ -13,7 +13,22 @@ import { RecentPlayedGamesSection } from './recent-played-games'
 import type { HomeTemplateProps } from './types'
 
 export function DefaultHomeTemplate(props: HomeTemplateProps) {
-  const { homeRails, lang, latestBlogPosts, t } = props
+  const { filters, homeRails, lang, latestBlogPosts, t } = props
+  // While the visitor is searching or filtering, the result grid belongs
+  // directly under the search form. In the default browse layout it sits
+  // below the rails, which made search results look like "not found".
+  const filtersActive = Boolean(
+    filters.query.trim() || filters.platform || filters.category,
+  )
+
+  const gamesSection = (
+    <GamesSection
+      {...props}
+      gridClassName="grid gap-4 sm:grid-cols-3 lg:grid-cols-5"
+      sectionClassName="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-6 sm:px-6 lg:px-8"
+      showHeader={false}
+    />
+  )
 
   return (
     <>
@@ -36,14 +51,11 @@ export function DefaultHomeTemplate(props: HomeTemplateProps) {
         </div>
       </section>
 
+      {filtersActive ? gamesSection : null}
+
       {homeRails ? <HomeRails lang={lang} rails={homeRails} /> : null}
 
-      <GamesSection
-        {...props}
-        gridClassName="grid gap-4 sm:grid-cols-3 lg:grid-cols-5"
-        sectionClassName="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-6 sm:px-6 lg:px-8"
-        showHeader={false}
-      />
+      {filtersActive ? null : gamesSection}
 
       <HomeLatestBlogPostsSection blogPosts={latestBlogPosts} lang={lang} />
       <HomeFaqSection lang={lang} />
