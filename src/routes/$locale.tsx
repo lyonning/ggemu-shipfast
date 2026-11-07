@@ -32,6 +32,7 @@ import {
   type GameSearchResult,
   type Locale,
   getGameFilterOptions,
+  getHomeRailsData,
   searchBlogPosts,
   searchGames,
 } from '#/lib/ggemu'
@@ -135,24 +136,29 @@ export const Route = createFileRoute('/$locale')({
       }
     }
 
-    const [seoOrigin, result, filterOptions, latestBlogPosts] = await Promise.all([
-      getSeoOrigin(),
-      searchGames({
-        data: {
-          query: '',
-          limit: getHomeRequestLimit(template),
-          locale,
-          page: 1,
-          sort: getHomeSort(template),
-        },
-      }),
-      loadGameFilterOptions(),
-      loadLatestBlogPosts(),
-    ])
+    const [seoOrigin, result, filterOptions, latestBlogPosts, homeRails] =
+      await Promise.all([
+        getSeoOrigin(),
+        searchGames({
+          data: {
+            query: '',
+            limit: getHomeRequestLimit(template),
+            locale,
+            page: 1,
+            sort: getHomeSort(template),
+          },
+        }),
+        loadGameFilterOptions(),
+        loadLatestBlogPosts(),
+        template === 'default'
+          ? getHomeRailsData().catch(() => null)
+          : Promise.resolve(null),
+      ])
 
     return {
       ...result,
       filterOptions,
+      homeRails,
       layoutSeed: getPokiDailyLayoutSeed(),
       latestBlogPosts,
       seoOrigin,
@@ -227,6 +233,7 @@ function LocalizedHomePage() {
     featureSections: initialResult.featureSections,
     filterOptions: initialResult.filterOptions,
     games,
+    homeRails: initialResult.homeRails,
     isLoading,
     lang,
     layoutSeed: initialResult.layoutSeed,

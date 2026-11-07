@@ -2,7 +2,10 @@ import { createServerFn } from '@tanstack/react-start'
 import { PRODUCTION_SITE_ORIGIN } from './seo'
 import { hasApprovedGames, isApprovedGame, isApprovedGameId } from './game-policy'
 import catalogSnapshot from '../../config/catalog-snapshot.json'
+import fcCartridges from '../../config/fc-cartridges.json'
 import localRoms from '../../config/local-roms.json'
+import rankingsData from '../../config/rankings-data.json'
+import { getCollectionDef } from './collections'
 
 const API_BASE_URL = 'https://ggemu.com'
 
@@ -828,3 +831,185 @@ export const getBlogPostDetailPageData = createServerFn({ method: 'GET' })
       ),
     } satisfies BlogPostDetailPageData
   })
+
+// --- Tier-1 features: rankings, home rails, collections, cartridges -------
+// Data comes from config/rankings-data.json (built daily by
+// scripts/build-rankings.mjs from the catalog snapshot) and from the
+// snapshot itself, so these pages never wait on the upstream API.
+
+export type RankingBoard = 'latest' | 'popular' | 'rising'
+
+export type RankingEntry = {
+  game: PublicGame
+  gain?: number
+}
+
+export type RankingsPageData = {
+  board: RankingBoard
+  generatedAt: string
+  historyDays: number
+  entries: Array<RankingEntry>
+}
+
+type RankingsDataFile = {
+  generated_at: string
+  history_days: number
+  latest: Array<string>
+  popular: Array<string>
+  rising: Array<{ gain: number; id: string }>
+}
+
+const rankings = rankingsData as RankingsDataFile
+
+export const getRankingsPageData = createServerFn({ method: 'GET' })
+  .validator((payload: { board?: string }) => ({
+    board: (payload.board === 'rising' || payload.board === 'latest'
+      ? payload.board
+      : 'popular') as RankingBoard,
+  }))
+  .handler(async ({ data }) => {
+    const entries: Array<RankingEntry> = []
+
+    if (data.board === 'rising') {
+      for (const item of rankings.rising) {
+        const game = getSnapshotGame(item.id)
+        if (game) entries.push({ game, gain: item.gain })
+      }
+    } else {
+      for (const id of rankings[data.board]) {
+        const game = getSnapshotGame(id)
+        if (game) entries.push({ game })
+      }
+    }
+
+    return {
+      board: data.board,
+      entries,
+      generatedAt: rankings.generated_at,
+      historyDays: rankings.history_days,
+    } satisfies RankingsPageData
+  })
+
+export type HomeRailsData = {
+  hero: Array<PublicGame>
+  latest: Array<PublicGame>
+  mahjong: Array<PublicGame>
+  popular: Array<PublicGame>
+  rising: Array<RankingEntry>
+}
+
+export const getHomeRailsData = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const catalog = getSnapshotCatalog()
+    const byPlays = [...catalog].sort(
+      (a, b) => (b.plays_count ?? 0) - (a.plays_count ?? 0),
+    )
+    const rising: Array<RankingEntry> = []
+
+    for (const item of rankings.rising.slice(0, 10)) {
+      const game = getSnapshotGame(item.id)
+      if (game) rising.push({ game, gain: item.gain })
+    }
+
+    return {
+      hero: byPlays.slice(0, 3),
+      latest: catalog.slice(0, 10),
+      mahjong: matchThemeGames(catalog, 'mahjong').slice(0, 10),
+      popular: byPlays.slice(0, 12),
+      rising,
+    } satisfies HomeRailsData
+  },
+)
+
+// Theme matchers run over snapshot fields (name + keywords). They mirror
+// the themes declared in lib/collections.ts.
+function matchThemeGames(
+  catalog: Array<PublicGame>,
+  themeId: string,
+): Array<PublicGame> {
+  const nameOf = (game: PublicGame) => game.name ?? ''
+  const textOf = (game: PublicGame) =>
+    `${game.name ?? ''} ${game.keywords ?? ''}`
+
+  const matchers: Record<string, (game: PublicGame) => boolean> = {
+    kof: (game) =>
+      nameOf(game).includes('拳皇') || /king of( the)? fighters/i.test(nameOf(game)),
+    mahjong: (game) =>
+      nameOf(game).includes('麻将') || /mahjong/i.test(nameOf(game)),
+    mario: (game) => nameOf(game).includes('马里奥') || /mario/i.test(nameOf(game)),
+    pokemon: (game) =>
+      nameOf(game).includes('宝可梦') || /pok[eé]mon/i.test(nameOf(game)),
+    'three-kingdoms': (game) => textOf(game).includes('三国'),
+  }
+
+  const matcher = matchers[themeId]
+  if (!matcher) return []
+
+  return catalog
+    .filter(matcher)
+    .sort((a, b) => (b.plays_count ?? 0) - (a.plays_count ?? 0))
+}
+
+export type CollectionPageData = {
+  games: Array<PublicGame>
+  kind: 'platform' | 'theme'
+  platformName?: string
+  total: number
+}
+
+export const getCollectionPageData = createServerFn({ method: 'GET' })
+  .validator((payload: { collectionId: string }) => ({
+    collectionId: payload.collectionId,
+  }))
+  .handler(async ({ data }) => {
+    const def = getCollectionDef(data.collectionId)
+    if (!def) return null
+
+    const catalog = getSnapshotCatalog()
+    const games =
+      def.kind === 'platform'
+        ? catalog
+            .filter((game) => game.platform === def.platformName)
+            .sort((a, b) => (b.plays_count ?? 0) - (a.plays_count ?? 0))
+        : matchThemeGames(catalog, def.id)
+
+    return {
+      games: games.slice(0, 240),
+      kind: def.kind,
+      platformName: def.platformName,
+      total: games.length,
+    } satisfies CollectionPageData
+  })
+
+export type CartridgeEntry = {
+  developer: string
+  game: PublicGame
+  number: number
+  tag: string
+  year: string
+}
+
+export const getCartridgesPageData = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const entries: Array<CartridgeEntry> = []
+
+    for (const cartridge of fcCartridges as Array<{
+      approved_id: string
+      developer?: string
+      tag?: string
+      year?: string
+    }>) {
+      const game = getSnapshotGame(cartridge.approved_id)
+      if (!game) continue
+      entries.push({
+        developer: cartridge.developer ?? '',
+        game,
+        number: entries.length + 1,
+        tag: cartridge.tag ?? '',
+        year: cartridge.year ?? '',
+      })
+    }
+
+    return { entries, total: entries.length }
+  },
+)

@@ -4,6 +4,8 @@ import type { HomeFaqs, I18nMessages } from './types'
 export const enMessages = {
   layout: {
     games: 'Home',
+    rankings: 'Rankings',
+    wishlist: 'Wishlist',
     deals: 'Game Deals',
     live: 'Live',
     explore: 'Explore',

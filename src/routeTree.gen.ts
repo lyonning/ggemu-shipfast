@@ -18,7 +18,9 @@ import { Route as LocaleRouteImport } from './routes/$locale'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GamesGameIdRouteImport } from './routes/games/$gameId'
 import { Route as ApiShareImageRouteImport } from './routes/api/share-image'
+import { Route as LocaleWishlistRouteImport } from './routes/$locale.wishlist'
 import { Route as LocaleTermsOfServiceRouteImport } from './routes/$locale.terms-of-service'
+import { Route as LocaleRankingsRouteImport } from './routes/$locale.rankings'
 import { Route as LocaleRandomRouteImport } from './routes/$locale.random'
 import { Route as LocalePrivacyPolicyRouteImport } from './routes/$locale.privacy-policy'
 import { Route as LocalePlayMyRomRouteImport } from './routes/$locale.play-my-rom'
@@ -29,6 +31,7 @@ import { Route as LocaleAboutRouteImport } from './routes/$locale.about'
 import { Route as GamesGameIdPlayRouteImport } from './routes/games/$gameId/play'
 import { Route as UsernameStatusStatusidRouteImport } from './routes/$username/status/$statusid'
 import { Route as UsernameArticleStatusidRouteImport } from './routes/$username/article/$statusid'
+import { Route as LocalePlatformCollectionIdRouteImport } from './routes/$locale.platform.$collectionId'
 import { Route as LocaleGamesGameIdRouteImport } from './routes/$locale.games.$gameId'
 import { Route as LocaleBlogBlogIdRouteImport } from './routes/$locale.blog.$blogId'
 import { Route as LocaleGamesGameIdPlayRouteImport } from './routes/$locale.games.$gameId.play'
@@ -79,9 +82,19 @@ const ApiShareImageRoute = ApiShareImageRouteImport.update({
   path: '/api/share-image',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LocaleWishlistRoute = LocaleWishlistRouteImport.update({
+  id: '/wishlist',
+  path: '/wishlist',
+  getParentRoute: () => LocaleRoute,
+} as any)
 const LocaleTermsOfServiceRoute = LocaleTermsOfServiceRouteImport.update({
   id: '/terms-of-service',
   path: '/terms-of-service',
+  getParentRoute: () => LocaleRoute,
+} as any)
+const LocaleRankingsRoute = LocaleRankingsRouteImport.update({
+  id: '/rankings',
+  path: '/rankings',
   getParentRoute: () => LocaleRoute,
 } as any)
 const LocaleRandomRoute = LocaleRandomRouteImport.update({
@@ -134,6 +147,12 @@ const UsernameArticleStatusidRoute = UsernameArticleStatusidRouteImport.update({
   path: '/$username/article/$statusid',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LocalePlatformCollectionIdRoute =
+  LocalePlatformCollectionIdRouteImport.update({
+    id: '/platform/$collectionId',
+    path: '/platform/$collectionId',
+    getParentRoute: () => LocaleRoute,
+  } as any)
 const LocaleGamesGameIdRoute = LocaleGamesGameIdRouteImport.update({
   id: '/games/$gameId',
   path: '/games/$gameId',
@@ -171,11 +190,14 @@ export interface FileRoutesByFullPath {
   '/$locale/play-my-rom': typeof LocalePlayMyRomRoute
   '/$locale/privacy-policy': typeof LocalePrivacyPolicyRoute
   '/$locale/random': typeof LocaleRandomRoute
+  '/$locale/rankings': typeof LocaleRankingsRoute
   '/$locale/terms-of-service': typeof LocaleTermsOfServiceRoute
+  '/$locale/wishlist': typeof LocaleWishlistRoute
   '/api/share-image': typeof ApiShareImageRoute
   '/games/$gameId': typeof GamesGameIdRouteWithChildren
   '/$locale/blog/$blogId': typeof LocaleBlogBlogIdRoute
   '/$locale/games/$gameId': typeof LocaleGamesGameIdRouteWithChildren
+  '/$locale/platform/$collectionId': typeof LocalePlatformCollectionIdRoute
   '/$username/article/$statusid': typeof UsernameArticleStatusidRoute
   '/$username/status/$statusid': typeof UsernameStatusStatusidRoute
   '/games/$gameId/play': typeof GamesGameIdPlayRoute
@@ -197,11 +219,14 @@ export interface FileRoutesByTo {
   '/$locale/play-my-rom': typeof LocalePlayMyRomRoute
   '/$locale/privacy-policy': typeof LocalePrivacyPolicyRoute
   '/$locale/random': typeof LocaleRandomRoute
+  '/$locale/rankings': typeof LocaleRankingsRoute
   '/$locale/terms-of-service': typeof LocaleTermsOfServiceRoute
+  '/$locale/wishlist': typeof LocaleWishlistRoute
   '/api/share-image': typeof ApiShareImageRoute
   '/games/$gameId': typeof GamesGameIdRouteWithChildren
   '/$locale/blog/$blogId': typeof LocaleBlogBlogIdRoute
   '/$locale/games/$gameId': typeof LocaleGamesGameIdRouteWithChildren
+  '/$locale/platform/$collectionId': typeof LocalePlatformCollectionIdRoute
   '/$username/article/$statusid': typeof UsernameArticleStatusidRoute
   '/$username/status/$statusid': typeof UsernameStatusStatusidRoute
   '/games/$gameId/play': typeof GamesGameIdPlayRoute
@@ -224,11 +249,14 @@ export interface FileRoutesById {
   '/$locale/play-my-rom': typeof LocalePlayMyRomRoute
   '/$locale/privacy-policy': typeof LocalePrivacyPolicyRoute
   '/$locale/random': typeof LocaleRandomRoute
+  '/$locale/rankings': typeof LocaleRankingsRoute
   '/$locale/terms-of-service': typeof LocaleTermsOfServiceRoute
+  '/$locale/wishlist': typeof LocaleWishlistRoute
   '/api/share-image': typeof ApiShareImageRoute
   '/games/$gameId': typeof GamesGameIdRouteWithChildren
   '/$locale/blog/$blogId': typeof LocaleBlogBlogIdRoute
   '/$locale/games/$gameId': typeof LocaleGamesGameIdRouteWithChildren
+  '/$locale/platform/$collectionId': typeof LocalePlatformCollectionIdRoute
   '/$username/article/$statusid': typeof UsernameArticleStatusidRoute
   '/$username/status/$statusid': typeof UsernameStatusStatusidRoute
   '/games/$gameId/play': typeof GamesGameIdPlayRoute
@@ -252,11 +280,14 @@ export interface FileRouteTypes {
     | '/$locale/play-my-rom'
     | '/$locale/privacy-policy'
     | '/$locale/random'
+    | '/$locale/rankings'
     | '/$locale/terms-of-service'
+    | '/$locale/wishlist'
     | '/api/share-image'
     | '/games/$gameId'
     | '/$locale/blog/$blogId'
     | '/$locale/games/$gameId'
+    | '/$locale/platform/$collectionId'
     | '/$username/article/$statusid'
     | '/$username/status/$statusid'
     | '/games/$gameId/play'
@@ -278,11 +309,14 @@ export interface FileRouteTypes {
     | '/$locale/play-my-rom'
     | '/$locale/privacy-policy'
     | '/$locale/random'
+    | '/$locale/rankings'
     | '/$locale/terms-of-service'
+    | '/$locale/wishlist'
     | '/api/share-image'
     | '/games/$gameId'
     | '/$locale/blog/$blogId'
     | '/$locale/games/$gameId'
+    | '/$locale/platform/$collectionId'
     | '/$username/article/$statusid'
     | '/$username/status/$statusid'
     | '/games/$gameId/play'
@@ -304,11 +338,14 @@ export interface FileRouteTypes {
     | '/$locale/play-my-rom'
     | '/$locale/privacy-policy'
     | '/$locale/random'
+    | '/$locale/rankings'
     | '/$locale/terms-of-service'
+    | '/$locale/wishlist'
     | '/api/share-image'
     | '/games/$gameId'
     | '/$locale/blog/$blogId'
     | '/$locale/games/$gameId'
+    | '/$locale/platform/$collectionId'
     | '/$username/article/$statusid'
     | '/$username/status/$statusid'
     | '/games/$gameId/play'
@@ -395,11 +432,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiShareImageRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$locale/wishlist': {
+      id: '/$locale/wishlist'
+      path: '/wishlist'
+      fullPath: '/$locale/wishlist'
+      preLoaderRoute: typeof LocaleWishlistRouteImport
+      parentRoute: typeof LocaleRoute
+    }
     '/$locale/terms-of-service': {
       id: '/$locale/terms-of-service'
       path: '/terms-of-service'
       fullPath: '/$locale/terms-of-service'
       preLoaderRoute: typeof LocaleTermsOfServiceRouteImport
+      parentRoute: typeof LocaleRoute
+    }
+    '/$locale/rankings': {
+      id: '/$locale/rankings'
+      path: '/rankings'
+      fullPath: '/$locale/rankings'
+      preLoaderRoute: typeof LocaleRankingsRouteImport
       parentRoute: typeof LocaleRoute
     }
     '/$locale/random': {
@@ -472,6 +523,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UsernameArticleStatusidRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$locale/platform/$collectionId': {
+      id: '/$locale/platform/$collectionId'
+      path: '/platform/$collectionId'
+      fullPath: '/$locale/platform/$collectionId'
+      preLoaderRoute: typeof LocalePlatformCollectionIdRouteImport
+      parentRoute: typeof LocaleRoute
+    }
     '/$locale/games/$gameId': {
       id: '/$locale/games/$gameId'
       path: '/games/$gameId'
@@ -534,8 +592,11 @@ interface LocaleRouteChildren {
   LocalePlayMyRomRoute: typeof LocalePlayMyRomRoute
   LocalePrivacyPolicyRoute: typeof LocalePrivacyPolicyRoute
   LocaleRandomRoute: typeof LocaleRandomRoute
+  LocaleRankingsRoute: typeof LocaleRankingsRoute
   LocaleTermsOfServiceRoute: typeof LocaleTermsOfServiceRoute
+  LocaleWishlistRoute: typeof LocaleWishlistRoute
   LocaleGamesGameIdRoute: typeof LocaleGamesGameIdRouteWithChildren
+  LocalePlatformCollectionIdRoute: typeof LocalePlatformCollectionIdRoute
   LocaleDealsSteamSteamAppIdRoute: typeof LocaleDealsSteamSteamAppIdRoute
 }
 
@@ -547,8 +608,11 @@ const LocaleRouteChildren: LocaleRouteChildren = {
   LocalePlayMyRomRoute: LocalePlayMyRomRoute,
   LocalePrivacyPolicyRoute: LocalePrivacyPolicyRoute,
   LocaleRandomRoute: LocaleRandomRoute,
+  LocaleRankingsRoute: LocaleRankingsRoute,
   LocaleTermsOfServiceRoute: LocaleTermsOfServiceRoute,
+  LocaleWishlistRoute: LocaleWishlistRoute,
   LocaleGamesGameIdRoute: LocaleGamesGameIdRouteWithChildren,
+  LocalePlatformCollectionIdRoute: LocalePlatformCollectionIdRoute,
   LocaleDealsSteamSteamAppIdRoute: LocaleDealsSteamSteamAppIdRoute,
 }
 

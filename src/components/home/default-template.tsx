@@ -1,4 +1,9 @@
 import {
+  HomeHeroCarousel,
+  HomeRails,
+  LiveNowStrip,
+} from './home-rails'
+import {
   GamesSection,
   HomeFaqSection,
   HomeLatestBlogPostsSection,
@@ -8,10 +13,12 @@ import { RecentPlayedGamesSection } from './recent-played-games'
 import type { HomeTemplateProps } from './types'
 
 export function DefaultHomeTemplate(props: HomeTemplateProps) {
-  const { lang, latestBlogPosts, t } = props
+  const { homeRails, lang, latestBlogPosts, t } = props
 
   return (
     <>
+      {homeRails ? <HomeHeroCarousel games={homeRails.hero} lang={lang} /> : null}
+      <LiveNowStrip lang={lang} />
       <RecentPlayedGamesSection lang={lang} />
 
       <section className="bg-base-100">
@@ -28,6 +35,8 @@ export function DefaultHomeTemplate(props: HomeTemplateProps) {
           <SearchForm {...props} mode="default" />
         </div>
       </section>
+
+      {homeRails ? <HomeRails lang={lang} rails={homeRails} /> : null}
 
       <GamesSection
         {...props}

@@ -1,10 +1,21 @@
 import { createFileRoute } from '@tanstack/react-router'
 
+import {
+  FC_CARTRIDGES_ID,
+  PLATFORM_COLLECTIONS,
+  THEME_COLLECTIONS,
+} from '#/lib/collections'
 import { fetchGameDeals } from '#/lib/game-deals.server'
 import { DEFAULT_DEAL_REGION } from '#/lib/game-deals-region'
 import type { BlogPost, Locale } from '#/lib/ggemu'
 import { getApprovedGameIds } from '#/lib/game-policy'
 import { PRODUCTION_SITE_ORIGIN } from '#/lib/seo'
+
+const SITEMAP_COLLECTION_IDS = [
+  ...PLATFORM_COLLECTIONS.map((collection) => collection.id),
+  ...THEME_COLLECTIONS.map((collection) => collection.id),
+  FC_CARTRIDGES_ID,
+]
 
 const GGEMU_API_BASE_URL = 'https://ggemu.com'
 const SITEMAP_PAGE_SIZE = 100
@@ -199,6 +210,32 @@ function buildSitemapEntries(
       changefreq: 'weekly',
       priority: 0.7,
     })
+    entries.push({
+      locale,
+      loc: toAbsoluteLocalizedUrl(origin, locale, '/rankings'),
+      path: '/rankings',
+      changefreq: 'daily',
+      priority: 0.8,
+    })
+    entries.push({
+      locale,
+      loc: toAbsoluteLocalizedUrl(origin, locale, '/wishlist'),
+      path: '/wishlist',
+      changefreq: 'weekly',
+      priority: 0.5,
+    })
+
+    for (const collectionId of SITEMAP_COLLECTION_IDS) {
+      const path = `/platform/${collectionId}`
+
+      entries.push({
+        locale,
+        loc: toAbsoluteLocalizedUrl(origin, locale, path),
+        path,
+        changefreq: 'weekly',
+        priority: 0.7,
+      })
+    }
 
     for (const id of gameIds) {
       const gameId = encodeURIComponent(id)

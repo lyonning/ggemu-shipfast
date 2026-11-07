@@ -4,6 +4,8 @@ import type { HomeFaqs, I18nMessages } from './types'
 export const zhCnMessages = {
   layout: {
     games: '首页',
+    rankings: '排行榜',
+    wishlist: '愿望单',
     deals: '游戏折扣',
     live: '游戏直播',
     explore: '探索',

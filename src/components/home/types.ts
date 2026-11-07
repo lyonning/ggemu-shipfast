@@ -5,6 +5,7 @@ import type {
   GameFilterOptions,
   GameSearchResult,
   GameSearchSort,
+  HomeRailsData,
   Locale,
   PublicGame,
 } from '#/lib/ggemu'
@@ -34,6 +35,7 @@ export type FeaturePlatformGames = {
 export type HomeLoaderData = GameSearchResult & {
   featureSections?: Array<FeatureSection>
   filterOptions: GameFilterOptions
+  homeRails?: HomeRailsData | null
   layoutSeed: number
   latestBlogPosts: Array<BlogPost>
   seoOrigin: string
@@ -73,6 +75,7 @@ export type HomeTemplateProps =
   Omit<GamesSectionProps, 'gridClassName' | 'sectionClassName'> &
     Omit<SearchFormProps, 'mode'> & {
       featureSections?: Array<FeatureSection>
+      homeRails?: HomeRailsData | null
       layoutSeed: number
       latestBlogPosts: Array<BlogPost>
     }

@@ -4,6 +4,8 @@ import type { HomeFaqs, I18nMessages } from './types'
 export const jaMessages = {
   layout: {
     games: 'ホーム',
+    rankings: 'ランキング',
+    wishlist: 'リクエスト',
     deals: 'ゲームセール',
     live: 'ゲーム配信',
     explore: '探す',

@@ -115,6 +115,12 @@ export function SiteLayout({
                   </Link>
                 </li>
                 <li>
+                  <Link params={{ locale }} search={{}} to="/$locale/rankings">
+                    <i className="ri-trophy-line" />
+                    {t.rankings}
+                  </Link>
+                </li>
+                <li>
                   <Link
                     params={{ locale }}
                     search={{ region: undefined }}
@@ -128,6 +134,12 @@ export function SiteLayout({
                   <Link params={{ locale }} to="/$locale/play-my-rom">
                     <i className="ri-gamepad-line" />
                     {t.playMyRom}
+                  </Link>
+                </li>
+                <li>
+                  <Link params={{ locale }} to="/$locale/wishlist">
+                    <i className="ri-star-line" />
+                    {t.wishlist}
                   </Link>
                 </li>
                 <li>
@@ -266,6 +278,23 @@ export function SiteFooter({ locale }: { locale: Locale }) {
               <Link className="link-hover link" params={{ locale }} to="/$locale">
                 <i className="ri-home-5-line mr-1" />
                 {t.games}
+              </Link>
+              <Link
+                className="link-hover link"
+                params={{ locale }}
+                search={{}}
+                to="/$locale/rankings"
+              >
+                <i className="ri-trophy-line mr-1" />
+                {t.rankings}
+              </Link>
+              <Link
+                className="link-hover link"
+                params={{ locale }}
+                to="/$locale/wishlist"
+              >
+                <i className="ri-star-line mr-1" />
+                {t.wishlist}
               </Link>
               <Link
                 className="link-hover link"
