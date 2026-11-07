@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { useServerFn } from '@tanstack/react-start'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { SimpleGameCard, formatPlays } from '#/components/simple-game-card'
 import {
@@ -90,23 +90,30 @@ export function HomeHeroCarousel({
 }) {
   const t = copy[lang]
   const [index, setIndex] = useState(0)
-  // Bumped on every manual swipe/dot tap so the auto-rotate timer
-  // restarts instead of firing right after a manual switch.
+  // Bumped on every manual navigation so the auto-rotate timer restarts
+  // instead of firing right after a manual switch.
   const [cycleKey, setCycleKey] = useState(0)
-  const [touchStartX, setTouchStartX] = useState<number | null>(null)
+  // Finger-follow drag state: while dragging, the track is translated by
+  // the raw finger delta with no CSS transition; on release the target
+  // slide snaps in with an eased transition.
+  const [drag, setDrag] = useState<{ offset: number; startX: number } | null>(
+    null,
+  )
+  const suppressClickRef = useRef(false)
+  const viewportRef = useRef<HTMLDivElement>(null)
+
+  const isDragging = drag !== null
 
   useEffect(() => {
-    if (games.length < 2) return
+    if (games.length < 2 || isDragging) return
     const id = window.setInterval(
       () => setIndex((current) => (current + 1) % games.length),
       5000,
     )
     return () => window.clearInterval(id)
-  }, [games.length, cycleKey])
+  }, [games.length, cycleKey, isDragging])
 
   if (games.length === 0) return null
-  const game = games[Math.min(index, games.length - 1)]
-  const gameId = game.url_slug || game._id || ''
 
   function goTo(nextIndex: number) {
     setIndex(((nextIndex % games.length) + games.length) % games.length)
@@ -114,17 +121,48 @@ export function HomeHeroCarousel({
   }
 
   function handleTouchStart(event: React.TouchEvent) {
-    setTouchStartX(event.touches[0]?.clientX ?? null)
+    const startX = event.touches[0]?.clientX
+    if (startX === undefined) return
+    setDrag({ offset: 0, startX })
   }
 
-  function handleTouchEnd(event: React.TouchEvent) {
-    if (touchStartX === null) return
-    const endX = event.changedTouches[0]?.clientX ?? touchStartX
-    const deltaX = endX - touchStartX
-    setTouchStartX(null)
-    // Ignore vertical-scroll gestures and tiny movements.
-    if (Math.abs(deltaX) < 40) return
-    goTo(index + (deltaX < 0 ? 1 : -1))
+  function handleTouchMove(event: React.TouchEvent) {
+    if (!drag) return
+    const currentX = event.touches[0]?.clientX
+    if (currentX === undefined) return
+    let offset = currentX - drag.startX
+    // Rubber-band resistance when dragging past the first/last slide.
+    const pastStart = index === 0 && offset > 0
+    const pastEnd = index === games.length - 1 && offset < 0
+    if (pastStart || pastEnd) offset *= 0.35
+    setDrag({ ...drag, offset })
+  }
+
+  function handleTouchEnd() {
+    if (!drag) return
+    const width = viewportRef.current?.clientWidth ?? 0
+    const threshold = Math.max(50, width * 0.18)
+    const { offset } = drag
+    setDrag(null)
+    if (Math.abs(offset) > 8) {
+      // The finger travelled: swallow the click that follows touchend so
+      // a swipe starting on the play button does not also open the game.
+      suppressClickRef.current = true
+      window.setTimeout(() => {
+        suppressClickRef.current = false
+      }, 350)
+    }
+    if (offset <= -threshold) goTo(index + 1)
+    else if (offset >= threshold) goTo(index - 1)
+    else setCycleKey((current) => current + 1)
+  }
+
+  function handleClickCapture(event: React.MouseEvent) {
+    if (suppressClickRef.current) {
+      event.preventDefault()
+      event.stopPropagation()
+      suppressClickRef.current = false
+    }
   }
 
   return (
@@ -132,43 +170,69 @@ export function HomeHeroCarousel({
       <div className="relative mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8">
         <div
           className="relative touch-pan-y overflow-hidden rounded-box bg-black shadow"
+          onClickCapture={handleClickCapture}
+          onTouchCancel={handleTouchEnd}
           onTouchEnd={handleTouchEnd}
+          onTouchMove={handleTouchMove}
           onTouchStart={handleTouchStart}
+          ref={viewportRef}
         >
-          {game.game_cover ? (
-            <img
-              alt={game.name ?? 'Game cover'}
-              className="h-52 w-full object-cover opacity-70 sm:h-72"
-              src={game.game_cover}
-            />
-          ) : (
-            <div className="h-52 w-full bg-base-300 sm:h-72" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-3 p-4 sm:p-6">
-            <div className="min-w-0">
-              <p className="text-xs font-medium uppercase tracking-wide text-white/70">
-                {game.platform}
-              </p>
-              <h2 className="mt-1 line-clamp-2 text-2xl font-bold text-white sm:text-3xl">
-                {game.name}
-              </h2>
-              <p className="mt-1 text-sm text-white/75">
-                {formatPlays(game.plays_count, lang)}
-              </p>
-            </div>
-            <Link
-              className="btn btn-primary shadow-lg"
-              params={{ gameId, locale: lang }}
-              search={{}}
-              to="/$locale/games/$gameId/play"
-            >
-              <i className="ri-play-fill" />
-              {t.playNow}
-            </Link>
+          <div
+            className="flex"
+            style={{
+              transform: `translateX(calc(${-index * 100}% + ${drag?.offset ?? 0}px))`,
+              transition: isDragging
+                ? 'none'
+                : 'transform 480ms cubic-bezier(0.22, 0.9, 0.28, 1)',
+            }}
+          >
+            {games.map((game) => {
+              const gameId = game.url_slug || game._id || ''
+
+              return (
+                <div
+                  className="relative w-full shrink-0"
+                  key={game._id ?? game.url_slug ?? gameId}
+                >
+                  {game.game_cover ? (
+                    <img
+                      alt={game.name ?? 'Game cover'}
+                      className="h-52 w-full select-none object-cover opacity-70 sm:h-72"
+                      draggable={false}
+                      src={game.game_cover}
+                    />
+                  ) : (
+                    <div className="h-52 w-full bg-base-300 sm:h-72" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-3 p-4 sm:p-6">
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium uppercase tracking-wide text-white/70">
+                        {game.platform}
+                      </p>
+                      <h2 className="mt-1 line-clamp-2 text-2xl font-bold text-white sm:text-3xl">
+                        {game.name}
+                      </h2>
+                      <p className="mt-1 text-sm text-white/75">
+                        {formatPlays(game.plays_count, lang)}
+                      </p>
+                    </div>
+                    <Link
+                      className="btn btn-primary shadow-lg"
+                      params={{ gameId, locale: lang }}
+                      search={{}}
+                      to="/$locale/games/$gameId/play"
+                    >
+                      <i className="ri-play-fill" />
+                      {t.playNow}
+                    </Link>
+                  </div>
+                </div>
+              )
+            })}
           </div>
           {games.length > 1 ? (
-            <div className="absolute right-4 top-4 flex gap-1.5">
+            <div className="absolute right-4 top-4 z-10 flex gap-1.5">
               {games.map((item, itemIndex) => (
                 <button
                   aria-label={item.name ?? `Slide ${itemIndex + 1}`}
