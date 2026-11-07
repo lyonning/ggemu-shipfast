@@ -4,6 +4,7 @@ import { hasApprovedGames, isApprovedGame, isApprovedGameId } from './game-polic
 import catalogSnapshot from '../../config/catalog-snapshot.json'
 import fcCartridges from '../../config/fc-cartridges.json'
 import localRoms from '../../config/local-roms.json'
+import localKeywords from '../../config/local-keywords.json'
 import rankingsData from '../../config/rankings-data.json'
 import { getCollectionDef } from './collections'
 
@@ -39,8 +40,26 @@ function withLocalCover<T extends PublicGame>(game: T): T {
   return game
 }
 
+// Local keyword aliases (config/local-keywords.json, keyed by approved id
+// or url_slug): names upstream GGEMU data lacks, e.g. Knights of Valour 2
+// Plus carries no 三国战纪 in its upstream keywords, so searching 三国战纪
+// finds only the first game and the sequel is also missing from the 三国
+// theme page. Applied to both catalog paths (live upstream + snapshot
+// fallback) so a daily snapshot refresh cannot wipe it.
+const localKeywordsById = localKeywords as Record<string, string>
+
+function withLocalKeywords<T extends PublicGame>(game: T): T {
+  const alias =
+    localKeywordsById[game.url_slug ?? ''] ??
+    (game._id ? localKeywordsById[game._id] : undefined)
+  if (!alias) return game
+  return { ...game, keywords: [game.keywords, alias].filter(Boolean).join(', ') }
+}
+
 function getSnapshotCatalog(): Array<PublicGame> {
-  return dedupeGames(snapshotGames.map((game) => withLocalCover(stripSnapshotFields(game))))
+  return dedupeGames(
+    snapshotGames.map((game) => withLocalKeywords(withLocalCover(stripSnapshotFields(game)))),
+  )
 }
 
 function getSnapshotGame(id: string): PublicGame | null {
@@ -413,7 +432,7 @@ async function buildApprovedCatalog() {
 
   approvedCatalogCache = {
     expiresAt: Date.now() + APPROVED_CATALOG_TTL_MS,
-    games: dedupeGames(games).map((game) => withLocalCover(game)),
+    games: dedupeGames(games).map((game) => withLocalKeywords(withLocalCover(game))),
   }
   return approvedCatalogCache.games
 }
