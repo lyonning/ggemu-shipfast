@@ -125,7 +125,7 @@ function RankingsPage() {
           <p className="mt-3 text-xs text-base-content/55">{t.risingNote}</p>
         ) : null}
 
-        <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-4 lg:grid-cols-5">
           {data.entries.map((entry, index) => (
             <SimpleGameCard
               game={entry.game}

@@ -32,6 +32,14 @@ const copy: Record<
     mahjongSub: string
     viewAll: string
     gainSuffix: string
+    randomTitle: string
+    randomCta: string
+    stripArcade: string
+    stripFamicom: string
+    stripGba: string
+    stripCartridges: string
+    stripRankings: string
+    stripWishlist: string
   }
 > = {
   'zh-CN': {
@@ -48,6 +56,14 @@ const copy: Record<
     mahjongSub: '不用凑人，随时开一局',
     viewAll: '查看全部',
     gainSuffix: '次新增游玩',
+    randomTitle: '每日随机玩一玩',
+    randomCta: '随机一款',
+    stripArcade: '街机',
+    stripFamicom: 'FC游戏机',
+    stripGba: 'GBA游戏机',
+    stripCartridges: 'FC卡带收藏',
+    stripRankings: '排行榜',
+    stripWishlist: '愿望单',
   },
   en: {
     playNow: 'Play now',
@@ -63,6 +79,14 @@ const copy: Record<
     mahjongSub: 'No need to gather four players',
     viewAll: 'View all',
     gainSuffix: 'new plays',
+    randomTitle: 'Daily Random Pick',
+    randomCta: 'Surprise me',
+    stripArcade: 'Arcade',
+    stripFamicom: 'Famicom',
+    stripGba: 'GBA',
+    stripCartridges: 'FC Cartridges',
+    stripRankings: 'Rankings',
+    stripWishlist: 'Wishlist',
   },
   ja: {
     playNow: '今すぐプレイ',
@@ -78,6 +102,14 @@ const copy: Record<
     mahjongSub: '人数を集めなくても、いつでも一局',
     viewAll: 'すべて見る',
     gainSuffix: '新規プレイ',
+    randomTitle: '今日のランダム',
+    randomCta: 'ランダムで選ぶ',
+    stripArcade: 'アーケード',
+    stripFamicom: 'ファミコン',
+    stripGba: 'GBA',
+    stripCartridges: 'FCカセット収蔵',
+    stripRankings: 'ランキング',
+    stripWishlist: 'ほしいもの',
   },
 }
 
@@ -291,7 +323,7 @@ export function LiveNowStrip({ lang }: { lang: Locale }) {
             {t.liveTitle}
           </h2>
         </div>
-        <div className="mt-2 flex gap-2 overflow-x-auto pb-2">
+        <div className="mt-2 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {rooms.map((room) => {
             const gameId = room.game.url_slug || room.game.slug || room.game._id
 
@@ -369,7 +401,7 @@ function RailSection({
           </Link>
         )}
       </div>
-      <div className="mt-3 flex gap-3 overflow-x-auto pb-2">
+      <div className="mt-3 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] sm:gap-3 [&::-webkit-scrollbar]:hidden">
         {children}
       </div>
     </section>
@@ -381,7 +413,7 @@ function RailCard({
 }: {
   children: React.ReactNode
 }) {
-  return <div className="w-36 shrink-0 sm:w-44">{children}</div>
+  return <div className="w-24 shrink-0 sm:w-44">{children}</div>
 }
 
 export function HomeRails({
@@ -466,5 +498,102 @@ export function HomeRails({
         </RailSection>
       ) : null}
     </>
+  )
+}
+
+// Mobile-only colored strip navigation (ucg999-style): full-bleed
+// two-column rows that vanish at the lg breakpoint. Pure CSS, no JS.
+export function MobileStripNav({ lang }: { lang: Locale }) {
+  const t = copy[lang]
+  const rows: Array<{
+    className: string
+    items: Array<{ collectionId?: string; label: string; to: 'collection' | 'rankings' | 'wishlist' }>
+  }> = [
+    {
+      className: 'bg-blue-600 text-white',
+      items: [
+        { collectionId: 'arcade', label: t.stripArcade, to: 'collection' },
+        { collectionId: 'fc-cartridges', label: t.stripCartridges, to: 'collection' },
+      ],
+    },
+    {
+      className: 'bg-amber-300 text-black',
+      items: [
+        { collectionId: 'famicom', label: t.stripFamicom, to: 'collection' },
+        { collectionId: 'game-boy-advance', label: t.stripGba, to: 'collection' },
+      ],
+    },
+    {
+      className: 'bg-violet-200 text-violet-950',
+      items: [
+        { label: t.stripRankings, to: 'rankings' },
+        { label: t.stripWishlist, to: 'wishlist' },
+      ],
+    },
+  ]
+
+  return (
+    <div className="lg:hidden">
+      {rows.map((row) => (
+        <nav
+          className={`grid w-full grid-cols-2 ${row.className}`}
+          key={row.className}
+        >
+          {row.items.map((item, itemIndex) => {
+            const className = `flex h-9 items-center justify-center text-sm font-medium ${
+              itemIndex === 0 ? 'border-r border-black/15' : ''
+            }`
+            if (item.to === 'rankings') {
+              return (
+                <Link className={className} key={item.label} params={{ locale: lang }} search={{ board: 'popular' }} to="/$locale/rankings">
+                  {item.label}
+                </Link>
+              )
+            }
+            if (item.to === 'wishlist') {
+              return (
+                <Link className={className} key={item.label} params={{ locale: lang }} to="/$locale/wishlist">
+                  {item.label}
+                </Link>
+              )
+            }
+            return (
+              <Link
+                className={className}
+                key={item.label}
+                params={{ collectionId: item.collectionId ?? '', locale: lang }}
+                to="/$locale/platform/$collectionId"
+              >
+                {item.label}
+              </Link>
+            )
+          })}
+        </nav>
+      ))}
+    </div>
+  )
+}
+
+// Daily random pick bar: one tap into the /random route (ucg999's
+// daily-random module, minus the coin economy we did not adopt).
+export function DailyRandomBar({ lang }: { lang: Locale }) {
+  const t = copy[lang]
+
+  return (
+    <section className="bg-base-100">
+      <div className="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8">
+        <Link
+          className="flex items-center justify-between gap-3 rounded-box border border-base-300 bg-base-200 px-4 py-3 shadow-sm transition hover:border-primary/40"
+          params={{ locale: lang }}
+          to="/$locale/random"
+        >
+          <span className="flex items-center gap-2 font-semibold text-base-content">
+            <i className="ri-shuffle-line text-lg text-primary" />
+            {t.randomTitle}
+          </span>
+          <span className="btn btn-primary btn-sm">{t.randomCta}</span>
+        </Link>
+      </div>
+    </section>
   )
 }

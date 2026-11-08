@@ -390,7 +390,7 @@ function GameCard({ game, lang }: { game: PublicGame; lang: Locale }) {
             alt={game.name ?? 'Game cover'}
             className="h-full w-full object-cover"
             loading="lazy"
-            src={game.game_cover}
+            src={game.game_cover_thumb ?? game.game_cover}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-base-content/40">

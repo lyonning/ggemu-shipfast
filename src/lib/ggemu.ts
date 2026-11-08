@@ -17,6 +17,7 @@ const API_BASE_URL = 'https://ggemu.com'
 type SnapshotGame = PublicGame & { _approved_id?: string; local_cover?: boolean }
 
 const LOCAL_COVER_BASE = 'https://assets.1231533.com/covers'
+const LOCAL_COVER_THUMB_BASE = 'https://assets.1231533.com/covers-480'
 const snapshotGames = catalogSnapshot as Array<SnapshotGame>
 const snapshotByApprovedId = new Map<string, SnapshotGame>()
 for (const game of snapshotGames) {
@@ -35,7 +36,13 @@ function withLocalCover<T extends PublicGame>(game: T): T {
   const snapshot = snapshotByApprovedId.get(game._id)
     ?? (game.url_slug ? snapshotByApprovedId.get(game.url_slug) : undefined)
   if (snapshot?.local_cover) {
-    return { ...game, game_cover: `${LOCAL_COVER_BASE}/${game._id}.jpg` }
+    return {
+      ...game,
+      game_cover: `${LOCAL_COVER_BASE}/${game._id}.jpg`,
+      // 480px-wide variant for list/card contexts (mobile data saver);
+      // detail pages and the hero keep the full-size cover.
+      game_cover_thumb: `${LOCAL_COVER_THUMB_BASE}/${game._id}.jpg`,
+    }
   }
   return game
 }
@@ -142,6 +149,7 @@ export type PublicGame = {
   downloadable?: number
   is_gcoin_game?: number
   game_cover?: string
+  game_cover_thumb?: string
   game_video?: string
   local_rom?: { url: string; core: string }
   likes_count?: number

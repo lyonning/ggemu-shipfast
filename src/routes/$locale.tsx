@@ -77,12 +77,22 @@ function parseHomeSearchStr(searchStr: string) {
 
 export const Route = createFileRoute('/$locale')({
   validateSearch: validateHomeSearch,
-  headers: ({ match }) =>
-    getSearchTemplate(match.search)
-      ? {
-          'X-Robots-Tag': 'noindex, nofollow',
-        }
-      : undefined,
+  headers: ({ match }) => {
+    if (getSearchTemplate(match.search)) {
+      return {
+        'X-Robots-Tag': 'noindex, nofollow',
+      }
+    }
+    // Edge-cache the anonymous homepage HTML briefly (ucg999-style):
+    // scoped to exactly /{locale} so detail and play pages never cache.
+    if (match.pathname === `/${match.params.locale}`) {
+      return {
+        'Cache-Control':
+          'public, max-age=0, s-maxage=120',
+      }
+    }
+    return undefined
+  },
   beforeLoad: ({ location, params }) => {
     if (!location.searchStr || location.pathname !== `/${params.locale}`) {
       return undefined as never

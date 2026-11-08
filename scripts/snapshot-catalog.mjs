@@ -13,6 +13,8 @@
  *
  * Output: one JSON summary line on stdout.
  */
+import { spawnSync } from 'node:child_process'
+import { existsSync } from 'node:fs'
 import { readFile, writeFile, mkdir, access } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
@@ -122,6 +124,18 @@ const missing = approved.filter((id, i) => !details[i])
 let coverStats = { attempted: 0, downloaded: 0, existing: 0, failed: 0 }
 if (COVERS_DIR) {
   await mkdir(resolve(COVERS_DIR, 'covers'), { recursive: true })
+  await mkdir(resolve(COVERS_DIR, 'covers-480'), { recursive: true })
+  // 480px thumbnails for list/card contexts (see build-cover-thumbs.mjs).
+  const ensureThumb = (upstreamId) => {
+    const src = resolve(COVERS_DIR, 'covers', upstreamId + '.jpg')
+    const dest = resolve(COVERS_DIR, 'covers-480', upstreamId + '.jpg')
+    if (existsSync(dest) || !existsSync(src)) return
+    spawnSync(
+      'ffmpeg',
+      ['-y', '-loglevel', 'error', '-i', src, '-vf', "scale='min(480,iw)':-1", '-q:v', '4', dest],
+      { encoding: 'utf-8' },
+    )
+  }
   const coverResults = await mapPool(games, async (game) => {
     const upstreamId = clean(game._id)
     const coverUrl = clean(game.game_cover)
@@ -130,6 +144,7 @@ if (COVERS_DIR) {
     try {
       await access(file)
       game.local_cover = true
+      ensureThumb(upstreamId)
       return 'existing'
     } catch { /* not downloaded yet */ }
     try {
@@ -139,6 +154,7 @@ if (COVERS_DIR) {
       if (bytes.length < 1000) throw new Error('suspiciously small cover')
       await writeFile(file, bytes)
       game.local_cover = true
+      ensureThumb(upstreamId)
       return 'downloaded'
     } catch {
       game.local_cover = false

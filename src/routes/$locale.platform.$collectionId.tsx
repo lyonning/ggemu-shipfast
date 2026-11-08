@@ -154,7 +154,7 @@ function CollectionPage() {
           {total} {t.gamesCount}
         </p>
 
-        <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-4 lg:grid-cols-5">
           {games.map((game) => (
             <SimpleGameCard
               game={game}
@@ -227,7 +227,7 @@ function CartridgesView({
         {t.gamesCount}
       </p>
 
-      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-4 lg:grid-cols-5">
         {entries.map((entry) => {
           const gameId = entry.game.url_slug || entry.game._id || ''
           const approvedId =

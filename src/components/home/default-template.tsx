@@ -1,7 +1,9 @@
 import {
+  DailyRandomBar,
   HomeHeroCarousel,
   HomeRails,
   LiveNowStrip,
+  MobileStripNav,
 } from './home-rails'
 import {
   GamesSection,
@@ -24,7 +26,7 @@ export function DefaultHomeTemplate(props: HomeTemplateProps) {
   const gamesSection = (
     <GamesSection
       {...props}
-      gridClassName="grid gap-4 sm:grid-cols-3 lg:grid-cols-5"
+      gridClassName="grid grid-cols-3 gap-2 sm:gap-4 lg:grid-cols-5"
       sectionClassName="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-6 sm:px-6 lg:px-8"
       showHeader={false}
     />
@@ -32,7 +34,9 @@ export function DefaultHomeTemplate(props: HomeTemplateProps) {
 
   return (
     <>
+      <MobileStripNav lang={lang} />
       {homeRails ? <HomeHeroCarousel games={homeRails.hero} lang={lang} /> : null}
+      <DailyRandomBar lang={lang} />
       <LiveNowStrip lang={lang} />
       <RecentPlayedGamesSection lang={lang} />
 
