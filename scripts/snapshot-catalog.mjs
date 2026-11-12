@@ -72,6 +72,15 @@ async function mapPool(items, worker) {
 const approved = JSON.parse(await readFile(APPROVED, 'utf8'))
 const approvedSet = new Set(approved)
 
+// Previous snapshot, used to carry over entries for games that have
+// been delisted upstream (see the missing-detail handling below).
+let prevSnapshot = []
+try {
+  prevSnapshot = JSON.parse(await readFile(SNAPSHOT, 'utf8'))
+} catch { /* no previous snapshot yet */ }
+const prevByApprovedId = new Map(prevSnapshot.map(g => [g._approved_id, g]))
+const prevIndexByApprovedId = new Map(prevSnapshot.map((g, i) => [g._approved_id, i]))
+
 // Page the search API to learn each approved game's upstream _id and its
 // position in the upstream newest-first order (the snapshot keeps that
 // order so the site's default "newest" listing matches the live catalog).
@@ -113,12 +122,32 @@ const details = await mapPool(approved, async (approvedId) => {
 })
 
 const games = details.filter(Boolean)
+const missing = approved.filter((id, i) => !details[i])
+
+// A game missing from the detail results is one of two cases:
+// - Still listed in the upstream search inventory: its detail fetch
+//   failed transiently. It stays in missing_detail and fails the run,
+//   so the caller hears about it and keeps the last good snapshot.
+// - Gone from the upstream inventory entirely: it was delisted. The
+//   catalog here is additions-only, so carry over its previous
+//   snapshot entry instead of failing every future run on it.
+const carriedOver = []
+const stillMissing = []
+for (const id of missing) {
+  const prev = prevByApprovedId.get(id)
+  if (!upstreamIdByApprovedId.has(id) && prev) {
+    games.push(prev)
+    carriedOver.push(id)
+  } else {
+    stillMissing.push(id)
+  }
+}
+
 games.sort((a, b) => {
-  const orderA = upstreamOrderByApprovedId.get(a._approved_id) ?? Number.MAX_SAFE_INTEGER
-  const orderB = upstreamOrderByApprovedId.get(b._approved_id) ?? Number.MAX_SAFE_INTEGER
+  const orderA = upstreamOrderByApprovedId.get(a._approved_id) ?? prevIndexByApprovedId.get(a._approved_id) ?? Number.MAX_SAFE_INTEGER
+  const orderB = upstreamOrderByApprovedId.get(b._approved_id) ?? prevIndexByApprovedId.get(b._approved_id) ?? Number.MAX_SAFE_INTEGER
   return orderA - orderB
 })
-const missing = approved.filter((id, i) => !details[i])
 
 // Mirror covers for games whose detail carried a cover URL.
 let coverStats = { attempted: 0, downloaded: 0, existing: 0, failed: 0 }
@@ -174,8 +203,9 @@ await writeFile(SNAPSHOT, JSON.stringify(games), 'utf8')
 console.log(JSON.stringify({
   approved: approved.length,
   snapshotted: games.length,
-  missing_detail: missing,
+  missing_detail: stillMissing,
+  carried_over: carriedOver,
   covers: coverStats,
   snapshot_bytes: Buffer.byteLength(JSON.stringify(games)),
 }))
-if (missing.length > 0) process.exit(1)
+if (stillMissing.length > 0) process.exit(1)
