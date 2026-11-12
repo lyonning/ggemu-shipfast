@@ -28334,5 +28334,53 @@
     "territory_confirmed": true,
     "assets_confirmed": true,
     "notes": "Auto-added by catalog sync under the site owner blanket approval (2026-11-02) and standing auto-sync instruction (2026-11-03); not individually evidence-reviewed per game."
+  },
+  {
+    "game_id": "vandyke-arcade-1990",
+    "status": "approved",
+    "rights_holder": "UPL",
+    "license_basis": "Site owner blanket approval for the GGEMU embed catalog (RetroPlay SEA owner decision, 2026-11-02)",
+    "evidence_url": "https://ggemu.com/en/game/vandyke-arcade-1990",
+    "approved_by": "Hosu",
+    "approved_at": "2026-11-13",
+    "expires_at": "",
+    "commercial_use": true,
+    "third_party_embed": true,
+    "public_play": true,
+    "territory_confirmed": true,
+    "assets_confirmed": true,
+    "notes": "Auto-added by catalog sync under the site owner blanket approval (2026-11-02) and standing auto-sync instruction (2026-11-03); not individually evidence-reviewed per game."
+  },
+  {
+    "game_id": "doraemon-green-planet-the-pounding-great-rescue-gba-2001",
+    "status": "approved",
+    "rights_holder": "Epoch",
+    "license_basis": "Site owner blanket approval for the GGEMU embed catalog (RetroPlay SEA owner decision, 2026-11-02)",
+    "evidence_url": "https://ggemu.com/en/game/doraemon-green-planet-the-pounding-great-rescue-gba-2001",
+    "approved_by": "Hosu",
+    "approved_at": "2026-11-13",
+    "expires_at": "",
+    "commercial_use": true,
+    "third_party_embed": true,
+    "public_play": true,
+    "territory_confirmed": true,
+    "assets_confirmed": true,
+    "notes": "Auto-added by catalog sync under the site owner blanket approval (2026-11-02) and standing auto-sync instruction (2026-11-03); not individually evidence-reviewed per game."
+  },
+  {
+    "game_id": "naruto-rpg-cn-gba-2003",
+    "status": "approved",
+    "rights_holder": "TOMY CORPORATION",
+    "license_basis": "Site owner blanket approval for the GGEMU embed catalog (RetroPlay SEA owner decision, 2026-11-02)",
+    "evidence_url": "https://ggemu.com/en/game/naruto-rpg-cn-gba-2003",
+    "approved_by": "Hosu",
+    "approved_at": "2026-11-13",
+    "expires_at": "",
+    "commercial_use": true,
+    "third_party_embed": true,
+    "public_play": true,
+    "territory_confirmed": true,
+    "assets_confirmed": true,
+    "notes": "Auto-added by catalog sync under the site owner blanket approval (2026-11-02) and standing auto-sync instruction (2026-11-03); not individually evidence-reviewed per game."
   }
 ]
