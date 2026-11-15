@@ -28382,5 +28382,37 @@
     "territory_confirmed": true,
     "assets_confirmed": true,
     "notes": "Auto-added by catalog sync under the site owner blanket approval (2026-11-02) and standing auto-sync instruction (2026-11-03); not individually evidence-reviewed per game."
+  },
+  {
+    "game_id": "slime-morimori-dragon-quest-shogeki-no-shippo-dan-gba-2002",
+    "status": "approved",
+    "rights_holder": "TOSE",
+    "license_basis": "Site owner blanket approval for the GGEMU embed catalog (RetroPlay SEA owner decision, 2026-11-02)",
+    "evidence_url": "https://ggemu.com/en/game/slime-morimori-dragon-quest-shogeki-no-shippo-dan-gba-2002",
+    "approved_by": "Hosu",
+    "approved_at": "2026-11-16",
+    "expires_at": "",
+    "commercial_use": true,
+    "third_party_embed": true,
+    "public_play": true,
+    "territory_confirmed": true,
+    "assets_confirmed": true,
+    "notes": "Auto-added by catalog sync under the site owner blanket approval (2026-11-02) and standing auto-sync instruction (2026-11-03); not individually evidence-reviewed per game."
+  },
+  {
+    "game_id": "wan-li-chang-cheng-arcade-2001",
+    "status": "approved",
+    "rights_holder": "IGS",
+    "license_basis": "Site owner blanket approval for the GGEMU embed catalog (RetroPlay SEA owner decision, 2026-11-02)",
+    "evidence_url": "https://ggemu.com/en/game/wan-li-chang-cheng-arcade-2001",
+    "approved_by": "Hosu",
+    "approved_at": "2026-11-16",
+    "expires_at": "",
+    "commercial_use": true,
+    "third_party_embed": true,
+    "public_play": true,
+    "territory_confirmed": true,
+    "assets_confirmed": true,
+    "notes": "Auto-added by catalog sync under the site owner blanket approval (2026-11-02) and standing auto-sync instruction (2026-11-03); not individually evidence-reviewed per game."
   }
 ]
