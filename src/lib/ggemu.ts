@@ -4,6 +4,7 @@ import { hasApprovedGames, isApprovedGame, isApprovedGameId } from './game-polic
 import catalogSnapshot from '../../config/catalog-snapshot.json'
 import fcCartridges from '../../config/fc-cartridges.json'
 import localRoms from '../../config/local-roms.json'
+import localHtml5 from '../../config/local-html5.json'
 import localKeywords from '../../config/local-keywords.json'
 import rankingsData from '../../config/rankings-data.json'
 import { getCollectionDef } from './collections'
@@ -113,6 +114,27 @@ function withLocalRom(game: PublicGame, approvedId: string): PublicGame {
     local_rom: { url: `${LOCAL_ROM_BASE}/${entry.id}/${fileName}`, core },
   }
 }
+
+// Self-hosted HTML5 games (config/local-html5.json): games whose web build
+// is mirrored in our own R2 bucket and played from our own host instead of
+// the GGEMU iframe — e.g. ports GGEMU marks PC-only although the build
+// itself ships touch controls. The registry is keyed by approved game id,
+// and each entry names the directory under LOCAL_HTML5_BASE that holds the
+// game's static files; the URL names index.html explicitly because the
+// R2 host does not resolve directory index documents.
+const LOCAL_HTML5_BASE = 'https://roms.1231533.com/html5'
+const localHtml5ByApprovedId = localHtml5 as Record<string, { dir: string }>
+
+function withLocalHtml5(game: PublicGame, approvedId: string): PublicGame {
+  const entry = localHtml5ByApprovedId[approvedId]
+    ?? (game.url_slug ? localHtml5ByApprovedId[game.url_slug] : undefined)
+    ?? (game._id ? localHtml5ByApprovedId[game._id] : undefined)
+  if (!entry) return game
+  return {
+    ...game,
+    local_html5: { url: `${LOCAL_HTML5_BASE}/${entry.dir}/index.html` },
+  }
+}
 const PAGE_SIZE = 20
 const MAX_PAGE_SIZE = 100
 const NON_GCOIN_GAME = '0'
@@ -152,6 +174,7 @@ export type PublicGame = {
   game_cover_thumb?: string
   game_video?: string
   local_rom?: { url: string; core: string }
+  local_html5?: { url: string }
   likes_count?: number
   comments_count?: number
   views_count?: number
@@ -782,7 +805,7 @@ export const getGameDetail = createServerFn({ method: 'GET' })
     if (!isApprovedGameId(data.id)) throw new Response('Game not found', { status: 404 })
     const game = await fetchGameDetailOrSnapshot(data.id)
     if (!isApprovedGame(game)) throw new Response('Game not found', { status: 404 })
-    return withLocalRom(withLocalCover(game), data.id)
+    return withLocalHtml5(withLocalRom(withLocalCover(game), data.id), data.id)
   })
 
 export const getGameDetailPageData = createServerFn({ method: 'GET' })
@@ -794,7 +817,7 @@ export const getGameDetailPageData = createServerFn({ method: 'GET' })
     if (!isApprovedGameId(data.id)) throw new Response('Game not found', { status: 404 })
     const fetched = await fetchGameDetailOrSnapshot(data.id)
     if (!isApprovedGame(fetched)) throw new Response('Game not found', { status: 404 })
-    const game = withLocalRom(withLocalCover(fetched), data.id)
+    const game = withLocalHtml5(withLocalRom(withLocalCover(fetched), data.id), data.id)
     const origin = PRODUCTION_SITE_ORIGIN
 
     return {

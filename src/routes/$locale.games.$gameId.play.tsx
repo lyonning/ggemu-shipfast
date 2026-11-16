@@ -53,6 +53,9 @@ function LocalizedPlayGamePage() {
   // EmulatorJS player by default; the GGEMU iframe stays one tap away.
   const [playerMode, setPlayerMode] = useState<'local' | 'embed'>('local')
   const localRom = game.local_rom
+  // Self-hosted HTML5 builds play from our own host by default (no GGEMU
+  // device gate); the GGEMU iframe stays one tap away as a fallback.
+  const localHtml5 = game.local_html5
 
   useEffect(() => {
     return () => {
@@ -80,6 +83,17 @@ function LocalizedPlayGamePage() {
           locale={lang}
           onSwitchToEmbed={() => setPlayerMode('embed')}
           romUrl={localRom.url}
+        />
+      ) : localHtml5 && playerMode === 'local' ? (
+        <EmbeddedGamePlayer
+          allow="autoplay; gamepad; fullscreen; pointer-lock"
+          className="h-full"
+          gameId={game.url_slug || game._id || gameId}
+          locale={lang}
+          onSwitchToEmbed={() => setPlayerMode('embed')}
+          playerType="html5"
+          src={localHtml5.url}
+          title={game.name ?? 'Retro game'}
         />
       ) : (
         <EmbeddedGamePlayer
