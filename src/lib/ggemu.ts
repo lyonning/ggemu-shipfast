@@ -132,7 +132,10 @@ function withLocalHtml5(game: PublicGame, approvedId: string): PublicGame {
   if (!entry) return game
   return {
     ...game,
-    local_html5: { url: `${LOCAL_HTML5_BASE}/${entry.dir}/index.html` },
+    // The ?v= tag busts handset heuristic caching of the shell page when a
+    // mirrored file changes (the R2 host sends no Cache-Control); bump it
+    // whenever a game's index.html is re-uploaded with a fix.
+    local_html5: { url: `${LOCAL_HTML5_BASE}/${entry.dir}/index.html?v=20261117b` },
   }
 }
 const PAGE_SIZE = 20
