@@ -28430,5 +28430,37 @@
     "territory_confirmed": true,
     "assets_confirmed": true,
     "notes": "Auto-added by catalog sync under the site owner blanket approval (2026-11-02) and standing auto-sync instruction (2026-11-03); not individually evidence-reviewed per game."
+  },
+  {
+    "game_id": "kartboard-html5-2026",
+    "status": "approved",
+    "rights_holder": "makio64",
+    "license_basis": "Site owner blanket approval for the GGEMU embed catalog (RetroPlay SEA owner decision, 2026-11-02)",
+    "evidence_url": "https://ggemu.com/en/game/kartboard-html5-2026",
+    "approved_by": "Hosu",
+    "approved_at": "2026-11-18",
+    "expires_at": "",
+    "commercial_use": true,
+    "third_party_embed": true,
+    "public_play": true,
+    "territory_confirmed": true,
+    "assets_confirmed": true,
+    "notes": "Auto-added by catalog sync under the site owner blanket approval (2026-11-02) and standing auto-sync instruction (2026-11-03); not individually evidence-reviewed per game."
+  },
+  {
+    "game_id": "tui-bi-da-lei-tai-html5",
+    "status": "approved",
+    "rights_holder": "GGEMU STUDIO",
+    "license_basis": "Site owner blanket approval for the GGEMU embed catalog (RetroPlay SEA owner decision, 2026-11-02)",
+    "evidence_url": "https://ggemu.com/en/game/tui-bi-da-lei-tai-html5",
+    "approved_by": "Hosu",
+    "approved_at": "2026-11-18",
+    "expires_at": "",
+    "commercial_use": true,
+    "third_party_embed": true,
+    "public_play": true,
+    "territory_confirmed": true,
+    "assets_confirmed": true,
+    "notes": "Auto-added by catalog sync under the site owner blanket approval (2026-11-02) and standing auto-sync instruction (2026-11-03); not individually evidence-reviewed per game."
   }
 ]
