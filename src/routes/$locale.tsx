@@ -83,8 +83,12 @@ export const Route = createFileRoute('/$locale')({
         'X-Robots-Tag': 'noindex, nofollow',
       }
     }
-    // Edge-cache the anonymous homepage HTML briefly (ucg999-style):
-    // scoped to exactly /{locale} so detail and play pages never cache.
+    // NOTE: match.pathname here is this parent route's own path, so this
+    // header in practice goes out on ALL /{locale}/* pages. It is advisory
+    // only — the edge does not cache Worker responses from headers alone.
+    // Real edge caching is whitelist-gated in src/server.ts (Cache API);
+    // pages outside that whitelist (wishlist, random, ...) always render
+    // fresh, and browsers revalidate anyway because max-age=0.
     if (match.pathname === `/${match.params.locale}`) {
       return {
         'Cache-Control':
