@@ -1,7 +1,16 @@
 {
-  "generated_at": "2026-11-18T21:17:26.928Z",
-  "history_days": 13,
+  "generated_at": "2026-11-21T00:26:50.398Z",
+  "history_days": 14,
   "latest": [
+    "home-sheep-home-2-lost-underground-flash-2012",
+    "home-sheep-home-3-flash-2012",
+    "home-sheep-home-2-lost-in-space-flash-2012",
+    "bei-jing-ma-jiang-flash-2008",
+    "bad-piggies-hd-flash-2012",
+    "kof-wing-191-flash",
+    "xin-huan-zhu-zhi-zhe-mo-zi-wei-flash",
+    "governor-of-poker-2-flash-2010",
+    "minecraft-26-html5-2026",
     "pokemon-ultra-emerald-ash-version-gba-2019",
     "keep-talking-and-nobody-explodes-html5-2015",
     "hill-climb-racing-html5-2012",
@@ -92,16 +101,7 @@
     "dahua-sanguo-shaizi-ding-tianxia-java-2007",
     "mahjong-chao-ji-man-guan-2-arcade-2002",
     "chao-ji-dou-di-zhu-liang-fu-pai-arcade-2007",
-    "chao-ji-dou-di-zhu-arcade-2007",
-    "star-3-in-1-arcade-2001",
-    "sennen-kazoku-gba-2002",
-    "lucky-grand-slam-arcade-1994",
-    "long-hu-bang-2-arcade-1996",
-    "mahjong-denshi-kiban-html5-1981",
-    "tenkai-arcade-1999",
-    "tarzan-chuan-tian-guan-2-arcade-1998",
-    "king-of-gladiator-arcade-2002",
-    "the-legend-of-the-condor-heroes-ps1-2000"
+    "chao-ji-dou-di-zhu-arcade-2007"
   ],
   "popular": [
     "vice-city-html5-2002",
@@ -125,286 +125,326 @@
     "san-guo-qun-ying-zhuan-2-html5-1998",
     "geometry-dash-advance-gba-2025",
     "age-of-empires-ii-dos-1999",
-    "battle-city-nes-1985",
     "tower-bloxx-flash",
+    "battle-city-nes-1985",
+    "grand-theft-auto-chinatown-wars-nds-2009",
     "the-king-of-fighters-98-arcade-1998",
     "pokemon-emerald-gba-2004",
     "neighbours-from-hell-flash-2003",
     "governor-of-poker-flash-2005",
-    "grand-theft-auto-chinatown-wars-nds-2009",
     "mahjong-chao-ji-man-guan-2-arcade-2002",
-    "super-mario-bros-4-the-undiscovered-zones-v2-nes-2017",
     "mahjong-denshi-kiban-html5-1981",
-    "xin-jian-xia-qing-yuan-html5-2001",
+    "super-mario-bros-4-the-undiscovered-zones-v2-nes-2017",
     "knights-of-valour-plus-arcade-1999",
+    "xin-jian-xia-qing-yuan-html5-2001",
     "commandos-dos-1998",
-    "doudizhu-html5-2013",
     "the-king-of-fighters-2002-arcade-2002",
+    "doudizhu-html5-2013",
     "flowline-an-endless-mountain-html5",
     "tarzan-chuan-tian-guan-2-arcade-1998",
     "super-mario-3d-world-64-n64-2017",
     "metal-slug-x-arcade-1999",
     "jianxia-qingyuan-2-html5-2000",
-    "my-own-swordsman-tongfu-inn-destiny-flash-2006",
     "metal-slug-arcade-1996",
+    "my-own-swordsman-tongfu-inn-destiny-flash-2006",
     "coin-pusher-html5-2024",
     "contra-1987-arcade-1987",
     "jin-yong-heroes-3-flash-2009",
-    "min-guo-jiao-yu-wei-yuan-hui-arcade-1993",
     "warriors-of-fate-ii-sanjiansheng-arcade-1993",
-    "double-dragon-iii-the-sacred-stones-nes-1991",
-    "snooker-ai-html5",
-    "snow-bros-arcade-1990",
+    "min-guo-jiao-yu-wei-yuan-hui-arcade-1993",
     "tenkai-arcade-1999",
+    "snooker-ai-html5",
+    "double-dragon-iii-the-sacred-stones-nes-1991",
+    "snow-bros-arcade-1990",
     "the-king-of-fighters-99-arcade-1999",
-    "chinese-paladin-dos-1995",
     "metal-slug-3-arcade-2000",
-    "the-king-of-fighters-kyo-ps1-1998",
     "asphalt-6-adrenaline-java-2010",
-    "oriental-legend-arcade-1997",
+    "chinese-paladin-dos-1995",
     "lucky-grand-slam-arcade-1994",
+    "the-king-of-fighters-kyo-ps1-1998",
+    "oriental-legend-arcade-1997",
     "yie-ar-kung-fu-nes-1985",
     "circus-charlie-nes-1984",
     "the-king-of-fighters-95-arcade-1995",
-    "bomberman-nes-1985",
     "shuang-long-qiang-zhu-3-arcade-1999",
     "initial-d-another-stage-gba-2003",
-    "rhythm-heaven-nds-2008",
+    "assassins-creed-java-2007",
+    "bomberman-nes-1985",
     "double-dragon-ii-the-revenge-arcade-1988",
-    "jin-yong-qun-xia-zhuan-dos-1996",
+    "rhythm-heaven-nds-2008",
     "doodle-shooter-html5-2020",
     "road-rash-dos-1996",
-    "assassins-creed-java-2007",
-    "richman-4-java-2005",
-    "towerbloxx-mycity-java-2006",
+    "jin-yong-qun-xia-zhuan-dos-1996",
     "tekken-3-ps1-1997",
     "long-hu-bang-2-arcade-1996",
-    "rhythm-tengoku-gold-nds-2008",
+    "richman-4-java-2005",
+    "towerbloxx-mycity-java-2006",
     "king-of-gladiator-arcade-2002",
+    "rhythm-tengoku-gold-nds-2008",
+    "chao-ji-dou-di-zhu-arcade-2007",
     "taiko-no-tatsujin-ds-touch-de-dokodon-nds-2005",
-    "grow-cube-flash-2005",
+    "grand-theft-auto-2-ps1-1999",
     "sword-and-sandals-2-flash-2002",
     "initial-d-ps1-1998",
+    "grow-cube-flash-2005",
     "star-3-in-1-arcade-2001",
     "pipi-and-bibis-other-1991",
     "tomodachi-collection-nds-2009",
-    "rich-man-3-dos-1996",
-    "gals-panic-arcade",
     "winning-eleven-4-ps1-1999",
-    "chao-ji-dou-di-zhu-arcade-2007",
+    "gals-panic-arcade",
+    "rich-man-3-dos-1996",
     "jin-yong-heroes-2-enhanced-flash-2006",
-    "rhythm-tengoku-japan-gba-2006",
     "vs-mahjong-otome-ryouran-arcade-1998",
+    "rhythm-tengoku-japan-gba-2006",
     "initial-d-another-stage-cn-gba-2002",
-    "grand-theft-auto-2-ps1-1999",
+    "need-for-speed-most-wanted-nds-2005",
     "tamaweb-html5-2026",
     "the-legend-of-the-condor-heroes-ps1-2000",
-    "harry-potter-and-the-philosopher-s-stone-ps1-2001",
     "naruto-shippuden-ultimate-impact-psp-2011",
+    "harry-potter-and-the-philosopher-s-stone-ps1-2001",
     "giga-wing-arcade-1999",
-    "raiden-arcade-1990",
-    "mario-in-the-multiverse-n64-2024"
+    "raiden-arcade-1990"
   ],
   "rising": [
     {
-      "gain": 18157,
+      "gain": 24336,
       "id": "vice-city-html5-2002"
     },
     {
-      "gain": 6636,
+      "gain": 7698,
       "id": "the-king-of-fighters-97-plus-arcade-1997"
     },
     {
-      "gain": 1693,
+      "gain": 1980,
       "id": "sanguosha-html5-2011"
     },
     {
-      "gain": 1453,
+      "gain": 1735,
       "id": "angry-birds-html5-2009"
     },
     {
-      "gain": 843,
+      "gain": 1014,
       "id": "subway-surf-web-html5-2012"
     },
     {
-      "gain": 819,
+      "gain": 934,
       "id": "minecraft-offline-edition-html5-2011"
     },
     {
-      "gain": 705,
+      "gain": 845,
       "id": "ra2web-html5-2026"
     },
     {
-      "gain": 684,
+      "gain": 785,
       "id": "the-king-of-fighters-97-arcade-1997"
     },
     {
-      "gain": 477,
+      "gain": 559,
       "id": "contra-nes-1988"
     },
     {
-      "gain": 405,
-      "id": "tarzan-chuan-tian-guan-2-arcade-1998"
-    },
-    {
-      "gain": 374,
-      "id": "super-mario-bros-nes-1985"
-    },
-    {
-      "gain": 338,
-      "id": "taiko-no-tatsujin-taiko-web-html5-2011"
-    },
-    {
-      "gain": 329,
-      "id": "age-of-empires-ii-dos-1999"
-    },
-    {
-      "gain": 324,
-      "id": "cadillacs-and-dinosaurs-arcade-1993"
-    },
-    {
-      "gain": 310,
-      "id": "jian-xia-qing-yuan-wai-chuan-yue-ying-chuan-shuo-html5-2001"
-    },
-    {
-      "gain": 310,
+      "gain": 458,
       "id": "grand-theft-auto-chinatown-wars-nds-2009"
     },
     {
-      "gain": 308,
+      "gain": 456,
+      "id": "super-mario-bros-nes-1985"
+    },
+    {
+      "gain": 443,
+      "id": "tarzan-chuan-tian-guan-2-arcade-1998"
+    },
+    {
+      "gain": 403,
+      "id": "age-of-empires-ii-dos-1999"
+    },
+    {
+      "gain": 399,
+      "id": "taiko-no-tatsujin-taiko-web-html5-2011"
+    },
+    {
+      "gain": 382,
+      "id": "cadillacs-and-dinosaurs-arcade-1993"
+    },
+    {
+      "gain": 357,
       "id": "mahjong-chao-ji-man-guan-2-arcade-2002"
     },
     {
-      "gain": 301,
+      "gain": 350,
       "id": "wow-new-fantasia-arcade-2002"
     },
     {
-      "gain": 273,
+      "gain": 329,
       "id": "mahjong-denshi-kiban-html5-1981"
     },
     {
-      "gain": 255,
+      "gain": 317,
+      "id": "jian-xia-qing-yuan-wai-chuan-yue-ying-chuan-shuo-html5-2001"
+    },
+    {
+      "gain": 286,
       "id": "3d-pinball-space-cadet-html5-1995"
     },
     {
-      "gain": 238,
+      "gain": 265,
       "id": "the-king-of-fighters-2002-arcade-2002"
     },
     {
-      "gain": 233,
+      "gain": 258,
       "id": "neighbours-from-hell-flash-2003"
     },
     {
-      "gain": 224,
+      "gain": 251,
       "id": "the-king-of-fighters-98-arcade-1998"
     },
     {
-      "gain": 222,
+      "gain": 248,
       "id": "king-of-fighters-10th-anniversary-2005-other-2005"
     },
     {
-      "gain": 194,
+      "gain": 235,
       "id": "tenkai-arcade-1999"
     },
     {
-      "gain": 187,
-      "id": "san-guo-qun-ying-zhuan-2-html5-1998"
-    },
-    {
-      "gain": 183,
-      "id": "brotato-html5-2022"
-    },
-    {
-      "gain": 178,
+      "gain": 222,
       "id": "flowline-an-endless-mountain-html5"
     },
     {
-      "gain": 178,
+      "gain": 220,
       "id": "murdoku-html5-2026"
     },
     {
-      "gain": 172,
-      "id": "warriors-of-fate-ii-arcade-1992"
+      "gain": 212,
+      "id": "san-guo-qun-ying-zhuan-2-html5-1998"
     },
     {
-      "gain": 164,
+      "gain": 202,
       "id": "geometry-dash-advance-gba-2025"
     },
     {
-      "gain": 159,
-      "id": "tower-bloxx-flash"
+      "gain": 198,
+      "id": "warriors-of-fate-ii-arcade-1992"
     },
     {
-      "gain": 156,
+      "gain": 190,
+      "id": "super-mario-64-n64-1996"
+    },
+    {
+      "gain": 185,
+      "id": "brotato-html5-2022"
+    },
+    {
+      "gain": 184,
       "id": "shuang-long-qiang-zhu-3-arcade-1999"
     },
     {
-      "gain": 155,
+      "gain": 181,
+      "id": "minecraft-26-html5-2026"
+    },
+    {
+      "gain": 181,
+      "id": "tower-bloxx-flash"
+    },
+    {
+      "gain": 180,
       "id": "governor-of-poker-flash-2005"
     },
     {
-      "gain": 146,
-      "id": "commandos-dos-1998"
+      "gain": 176,
+      "id": "the-legend-of-zelda-ocarina-of-time-n64-1998"
     },
     {
-      "gain": 144,
-      "id": "tekken-3-ps1-1997"
-    },
-    {
-      "gain": 140,
-      "id": "dragon-ball-gt-transformation-cn-gba-2005"
-    },
-    {
-      "gain": 135,
+      "gain": 171,
       "id": "assassins-creed-java-2007"
     },
     {
-      "gain": 128,
+      "gain": 163,
       "id": "chao-ji-dou-di-zhu-arcade-2007"
     },
     {
-      "gain": 124,
-      "id": "need-for-speed-most-wanted-nds-2005"
+      "gain": 163,
+      "id": "tekken-3-ps1-1997"
     },
     {
-      "gain": 122,
-      "id": "lucky-grand-slam-arcade-1994"
+      "gain": 161,
+      "id": "commandos-dos-1998"
     },
     {
-      "gain": 121,
-      "id": "pokemon-emerald-gba-2004"
-    },
-    {
-      "gain": 120,
-      "id": "knights-of-valour-plus-arcade-1999"
-    },
-    {
-      "gain": 118,
+      "gain": 159,
       "id": "grand-theft-auto-2-ps1-1999"
     },
     {
-      "gain": 116,
+      "gain": 155,
+      "id": "dragon-ball-gt-transformation-cn-gba-2005"
+    },
+    {
+      "gain": 155,
+      "id": "need-for-speed-most-wanted-nds-2005"
+    },
+    {
+      "gain": 147,
+      "id": "lucky-grand-slam-arcade-1994"
+    },
+    {
+      "gain": 147,
+      "id": "pokemon-emerald-gba-2004"
+    },
+    {
+      "gain": 146,
       "id": "warriors-of-fate-ii-sanjiansheng-arcade-1993"
     },
     {
-      "gain": 113,
-      "id": "pokemon-heartgold-nds-2009"
+      "gain": 145,
+      "id": "call-of-duty-black-ops-nds-2010"
     },
     {
-      "gain": 109,
-      "id": "long-hu-bang-2-arcade-1996"
+      "gain": 134,
+      "id": "knights-of-valour-plus-arcade-1999"
     },
     {
-      "gain": 108,
+      "gain": 132,
+      "id": "bleach-vs-naruto-35b-flash-2015"
+    },
+    {
+      "gain": 130,
       "id": "asphalt-6-adrenaline-java-2010"
     },
     {
-      "gain": 107,
+      "gain": 126,
+      "id": "long-hu-bang-2-arcade-1996"
+    },
+    {
+      "gain": 124,
       "id": "snooker-ai-html5"
     },
     {
-      "gain": 106,
+      "gain": 118,
+      "id": "pokemon-heartgold-nds-2009"
+    },
+    {
+      "gain": 117,
       "id": "battle-city-nes-1985"
+    },
+    {
+      "gain": 112,
+      "id": "metal-slug-arcade-1996"
+    },
+    {
+      "gain": 112,
+      "id": "min-guo-jiao-yu-wei-yuan-hui-arcade-1993"
+    },
+    {
+      "gain": 109,
+      "id": "road-rash-dos-1996"
+    },
+    {
+      "gain": 108,
+      "id": "super-mario-bros-4-the-undiscovered-zones-v2-nes-2017"
+    },
+    {
+      "gain": 105,
+      "id": "super-mario-3d-world-64-n64-2017"
     },
     {
       "gain": 105,
@@ -412,199 +452,159 @@
     },
     {
       "gain": 104,
-      "id": "min-guo-jiao-yu-wei-yuan-hui-arcade-1993"
+      "id": "contra-gender-swap-nes-1988"
+    },
+    {
+      "gain": 99,
+      "id": "metal-slug-3-arcade-2000"
     },
     {
       "gain": 98,
-      "id": "road-rash-dos-1996"
+      "id": "king-of-gladiator-arcade-2002"
     },
     {
-      "gain": 98,
-      "id": "call-of-duty-black-ops-nds-2010"
+      "gain": 97,
+      "id": "snow-bros-arcade-1990"
     },
     {
-      "gain": 98,
-      "id": "metal-slug-arcade-1996"
+      "gain": 95,
+      "id": "doudizhu-html5-2013"
     },
     {
-      "gain": 96,
-      "id": "bleach-vs-naruto-35b-flash-2015"
+      "gain": 94,
+      "id": "ouran-high-school-host-club-ds-nds-2009"
     },
     {
-      "gain": 89,
+      "gain": 94,
+      "id": "initial-d-another-stage-gba-2003"
+    },
+    {
+      "gain": 93,
       "id": "undertale-html5-2015"
     },
     {
-      "gain": 89,
-      "id": "ouran-high-school-host-club-ds-nds-2009"
+      "gain": 90,
+      "id": "wan-li-chang-cheng-arcade-2001"
     },
     {
       "gain": 89,
       "id": "naruto-rpg-cn-gba-2003"
     },
     {
-      "gain": 88,
-      "id": "super-mario-bros-4-the-undiscovered-zones-v2-nes-2017"
-    },
-    {
-      "gain": 87,
-      "id": "contra-gender-swap-nes-1988"
-    },
-    {
-      "gain": 86,
-      "id": "super-mario-3d-world-64-n64-2017"
-    },
-    {
-      "gain": 85,
-      "id": "doudizhu-html5-2013"
-    },
-    {
-      "gain": 84,
-      "id": "snow-bros-arcade-1990"
-    },
-    {
-      "gain": 83,
-      "id": "wan-li-chang-cheng-arcade-2001"
-    },
-    {
-      "gain": 83,
-      "id": "metal-slug-3-arcade-2000"
-    },
-    {
-      "gain": 82,
+      "gain": 89,
       "id": "winning-eleven-4-ps1-1999"
     },
     {
-      "gain": 81,
-      "id": "king-of-gladiator-arcade-2002"
-    },
-    {
-      "gain": 78,
-      "id": "crayon-shin-chan-densetsu-no-omake-o-mikke-gba-2004"
-    },
-    {
-      "gain": 78,
+      "gain": 86,
       "id": "bleach-vs-naruto-demo-html5-2014"
     },
     {
-      "gain": 77,
+      "gain": 85,
+      "id": "crayon-shin-chan-densetsu-no-omake-o-mikke-gba-2004"
+    },
+    {
+      "gain": 84,
       "id": "naruto-shippuden-ultimate-impact-psp-2011"
     },
     {
-      "gain": 75,
-      "id": "pokemon-quetzal-cn-gba-2023"
-    },
-    {
-      "gain": 75,
-      "id": "xin-jian-xia-qing-yuan-html5-2001"
-    },
-    {
-      "gain": 74,
-      "id": "initial-d-another-stage-gba-2003"
-    },
-    {
-      "gain": 73,
-      "id": "oriental-legend-arcade-1997"
-    },
-    {
-      "gain": 71,
-      "id": "tomodachi-collection-nds-2009"
-    },
-    {
-      "gain": 68,
-      "id": "neo-bomber-man-arcade-1997"
-    },
-    {
-      "gain": 67,
-      "id": "pokemon-white-2-nds-2012"
-    },
-    {
-      "gain": 67,
-      "id": "initial-d-another-stage-cn-gba-2002"
-    },
-    {
-      "gain": 67,
+      "gain": 80,
       "id": "coin-pusher-html5-2024"
     },
     {
-      "gain": 67,
-      "id": "sword-and-sandals-2-flash-2002"
+      "gain": 79,
+      "id": "pokemon-quetzal-cn-gba-2023"
     },
     {
-      "gain": 66,
-      "id": "pipi-and-bibis-other-1991"
-    },
-    {
-      "gain": 66,
-      "id": "harry-potter-and-the-philosopher-s-stone-ps1-2001"
-    },
-    {
-      "gain": 64,
-      "id": "star-3-in-1-arcade-2001"
-    },
-    {
-      "gain": 64,
+      "gain": 79,
       "id": "jin-yong-heroes-3-flash-2009"
     },
     {
-      "gain": 63,
-      "id": "street-fighter-ii-champion-edition-arcade-1992"
+      "gain": 79,
+      "id": "neo-bomber-man-arcade-1997"
     },
     {
-      "gain": 62,
-      "id": "bleach-vs-naruto-3-01-flash-2007"
+      "gain": 77,
+      "id": "xin-jian-xia-qing-yuan-html5-2001"
     },
     {
-      "gain": 61,
-      "id": "rhythm-tengoku-gold-nds-2008"
+      "gain": 76,
+      "id": "tomodachi-collection-nds-2009"
     },
     {
-      "gain": 61,
-      "id": "gals-panic-arcade"
+      "gain": 76,
+      "id": "oriental-legend-arcade-1997"
     },
     {
-      "gain": 59,
-      "id": "rexue-jietou-java-2007"
+      "gain": 75,
+      "id": "initial-d-another-stage-cn-gba-2002"
     },
     {
-      "gain": 58,
-      "id": "ni-zhuan-cai-pan-4-nds-2007"
+      "gain": 75,
+      "id": "pipi-and-bibis-other-1991"
     },
     {
-      "gain": 57,
-      "id": "pokemon-black-nds-2010"
+      "gain": 75,
+      "id": "sword-and-sandals-2-flash-2002"
     },
     {
-      "gain": 57,
-      "id": "jianxia-qingyuan-2-html5-2000"
-    },
-    {
-      "gain": 57,
-      "id": "fifa-2000-major-league-soccer-ps1-1999"
-    },
-    {
-      "gain": 57,
-      "id": "metal-slug-x-arcade-1999"
-    },
-    {
-      "gain": 56,
-      "id": "pokemon-white-nds-2010"
-    },
-    {
-      "gain": 56,
-      "id": "grand-theft-auto-ps1-1997"
-    },
-    {
-      "gain": 54,
-      "id": "super-mario-world-snes-1990"
-    },
-    {
-      "gain": 54,
+      "gain": 73,
       "id": "69ccc9cae9b9c3b4b736ef66"
     },
     {
-      "gain": 53,
-      "id": "the-need-for-speed-dos-1995"
+      "gain": 70,
+      "id": "pokemon-white-2-nds-2012"
+    },
+    {
+      "gain": 70,
+      "id": "metal-slug-x-arcade-1999"
+    },
+    {
+      "gain": 69,
+      "id": "star-3-in-1-arcade-2001"
+    },
+    {
+      "gain": 68,
+      "id": "bleach-vs-naruto-3-01-flash-2007"
+    },
+    {
+      "gain": 68,
+      "id": "harry-potter-and-the-philosopher-s-stone-ps1-2001"
+    },
+    {
+      "gain": 68,
+      "id": "rhythm-tengoku-gold-nds-2008"
+    },
+    {
+      "gain": 67,
+      "id": "rexue-jietou-java-2007"
+    },
+    {
+      "gain": 66,
+      "id": "super-mario-world-snes-1990"
+    },
+    {
+      "gain": 66,
+      "id": "fifa-2000-major-league-soccer-ps1-1999"
+    },
+    {
+      "gain": 66,
+      "id": "gals-panic-arcade"
+    },
+    {
+      "gain": 65,
+      "id": "street-fighter-ii-champion-edition-arcade-1992"
+    },
+    {
+      "gain": 63,
+      "id": "pokemon-white-nds-2010"
+    },
+    {
+      "gain": 63,
+      "id": "mugen-html5-1999"
+    },
+    {
+      "gain": 63,
+      "id": "grand-theft-auto-ps1-1997"
     }
   ]
 }
